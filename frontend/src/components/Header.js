@@ -18,7 +18,7 @@ const Header = () => {
     <AppBar position="static">
       <Toolbar>
         <Typography variant="h6" style={{ flexGrow: 1 }}>
-          Country House Comparison
+          Getaway Match
         </Typography>
         <Button color="inherit" component={Link} to="/">
           Home

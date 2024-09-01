@@ -17,7 +17,14 @@ exports.forwardGeocode = async (req, res) => {
 exports.reverseGeocode = async (req, res) => {
   try {
     const { lng, lat } = req.query;
-    const result = await mapboxService.reverseGeocode(lng, lat);
+    const parsedLng = parseFloat(lng);
+    const parsedLat = parseFloat(lat);
+
+    if (isNaN(parsedLng) || isNaN(parsedLat)) {
+      return res.status(400).json({ message: 'Invalid longitude or latitude' });
+    }
+
+    const result = await mapboxService.reverseGeocode(parsedLng, parsedLat);
     if (result) {
       res.json({ features: [{ place_name: result }] });  // Wrap the result in a features array
     } else {

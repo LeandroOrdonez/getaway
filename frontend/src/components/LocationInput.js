@@ -1,10 +1,51 @@
-import React, { useState } from 'react';
-import { TextField, List, ListItem, ListItemText } from '@mui/material';
-import { forwardGeocode } from '../services/api';
+// src/components/LocationInput.js
+import React, { useState, useEffect, useContext } from 'react';
+import { TextField, List, ListItem, ListItemText, Button, CircularProgress } from '@mui/material';
+import { forwardGeocode, reverseGeocode } from '../services/api';
+import { LocationContext } from '../contexts/LocationContext';
 
-const LocationInput = ({ onLocationSelect }) => {
+const LocationInput = () => {
+  const { location, setLocation } = useContext(LocationContext);
   const [address, setAddress] = useState('');
   const [suggestions, setSuggestions] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
+
+  const detectLocation = async () => {
+    setIsLoading(true);
+    if ("geolocation" in navigator) {
+      try {
+        const position = await new Promise((resolve, reject) => {
+          navigator.geolocation.getCurrentPosition(resolve, reject);
+        });
+        
+        const { latitude, longitude } = position.coords;
+        const response = await reverseGeocode(longitude, latitude);
+        if (response.data && response.data.features && response.data.features.length > 0) {
+          const detectedAddress = response.data.features[0].place_name;
+          setAddress(detectedAddress);
+          setLocation({
+            center: [longitude, latitude],
+            place_name: detectedAddress
+          });
+        }
+      } catch (error) {
+        console.error('Error detecting location:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    } else {
+      console.error('Geolocation is not supported by this browser.');
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (location && location.place_name) {
+      setAddress(location.place_name);
+    } else {
+      detectLocation();
+    }
+  }, [location]);
 
   const handleAddressChange = async (event) => {
     const value = event.target.value;
@@ -13,8 +54,6 @@ const LocationInput = ({ onLocationSelect }) => {
     if (value.length > 2) {
       try {
         const response = await forwardGeocode(value);
-        // Ensure we're working with an array of features
-        // console.log(JSON.stringify(response));
         const features = response.data.features || [];
         setSuggestions(features);
       } catch (error) {
@@ -29,7 +68,10 @@ const LocationInput = ({ onLocationSelect }) => {
   const handleSuggestionSelect = (suggestion) => {
     setAddress(suggestion.place_name);
     setSuggestions([]);
-    onLocationSelect(suggestion);
+    setLocation({
+      center: suggestion.center,
+      place_name: suggestion.place_name
+    });
   };
 
   return (
@@ -39,7 +81,11 @@ const LocationInput = ({ onLocationSelect }) => {
         label="Enter location"
         value={address}
         onChange={handleAddressChange}
+        disabled={isLoading}
       />
+      <Button onClick={detectLocation} disabled={isLoading}>
+        {isLoading ? <CircularProgress size={24} /> : 'Detect My Location'}
+      </Button>
       <List>
         {suggestions.map((suggestion, index) => (
           <ListItem 
