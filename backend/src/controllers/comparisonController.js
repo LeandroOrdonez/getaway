@@ -59,13 +59,6 @@ exports.submitComparison = async (req, res) => {
     await winner.update({ eloScore: newWinnerRating }, { transaction });
     await loser.update({ eloScore: newLoserRating }, { transaction });
 
-    console.log({
-      userId,
-      userType,
-      winnerAccommodationId,
-      loserAccommodationId,
-    });
-
     await Comparison.create({
       userId,
       userType,

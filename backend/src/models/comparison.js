@@ -34,4 +34,8 @@ const Comparison = sequelize.define('Comparison', {
   },
 });
 
+// Define associations
+Comparison.belongsTo(Accommodation, { as: 'winnerAccommodation', foreignKey: 'winnerAccommodationId' });
+Comparison.belongsTo(Accommodation, { as: 'loserAccommodation', foreignKey: 'loserAccommodationId' });
+
 module.exports = Comparison;

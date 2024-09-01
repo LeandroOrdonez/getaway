@@ -1,4 +1,6 @@
 const User = require('../models/user');
+const Comparison = require('../models/comparison');
+const Accommodation = require('../models/accommodation');
 
 exports.getUserSettings = async (req, res) => {
   try {
@@ -29,5 +31,20 @@ exports.updateUserSettings = async (req, res) => {
     }
   } catch (error) {
     res.status(400).json({ error: error.message });
+  }
+};
+
+exports.getUserComparisons = async (req, res) => { // Add this method
+  try {
+    const comparisons = await Comparison.findAll({
+      where: { userId: req.user.id },
+      include: [
+        { model: Accommodation, as: 'winnerAccommodation' },
+        { model: Accommodation, as: 'loserAccommodation' }
+      ]
+    });
+    res.json(comparisons);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
   }
 };
