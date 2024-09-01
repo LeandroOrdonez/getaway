@@ -2,13 +2,17 @@ import React, { useContext, useState } from 'react';
 import { Container, Typography, Button, Grid, TextField } from '@mui/material';
 import { Link } from 'react-router-dom';
 import { LocationContext } from '../contexts/LocationContext';
+import LocationInput from '../components/LocationInput';
 
 const Home = () => {
-  const { location, error, detectLocation, setManualLocation } = useContext(LocationContext);
-  const [manualAddress, setManualAddress] = useState('');
+  const { setLocation } = useContext(LocationContext);
 
-  const handleManualLocation = () => {
-    setManualLocation(manualAddress);
+  const handleLocationSelect = (selectedLocation) => {
+    setLocation({
+      lat: selectedLocation.center[1],
+      lng: selectedLocation.center[0],
+      address: selectedLocation.place_name
+    });
   };
 
   return (
@@ -16,32 +20,7 @@ const Home = () => {
       <Typography variant="h3" component="h1" gutterBottom>
         Welcome to Country House Accommodation Comparison
       </Typography>
-      <Typography variant="h5" gutterBottom>
-        Your Location: {location ? (typeof location === 'string' ? location : `${location.lat}, ${location.lng}`) : 'Not set'}
-      </Typography>
-      {error && (
-        <Typography color="error" gutterBottom>
-          {error}
-        </Typography>
-      )}
-      <Button onClick={detectLocation} variant="contained" color="primary" style={{ marginBottom: '1rem' }}>
-        Detect My Location
-      </Button>
-      <Grid container spacing={2} alignItems="center">
-        <Grid item xs={12} sm={8}>
-          <TextField
-            fullWidth
-            label="Enter your address manually"
-            value={manualAddress}
-            onChange={(e) => setManualAddress(e.target.value)}
-          />
-        </Grid>
-        <Grid item xs={12} sm={4}>
-          <Button onClick={handleManualLocation} variant="contained" color="secondary">
-            Set Manual Location
-          </Button>
-        </Grid>
-      </Grid>
+      <LocationInput onLocationSelect={handleLocationSelect} />
       <Grid container spacing={3} style={{ marginTop: '2rem' }}>
         <Grid item xs={12} sm={4}>
           <Button

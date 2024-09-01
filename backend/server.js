@@ -6,7 +6,8 @@ const accommodationRoutes = require('./src/routes/accommodationRoutes');
 const comparisonRoutes = require('./src/routes/comparisonRoutes');
 const authRoutes = require('./src/routes/authRoutes');
 const adminRoutes = require('./src/routes/adminRoutes');
-const userRoutes = require('./src/routes/userRoutes'); 
+const userRoutes = require('./src/routes/userRoutes');
+const geocodingRoutes = require('./src/routes/geocodingRoutes');
 
 dotenv.config();
 
@@ -27,6 +28,7 @@ app.use('/api/comparisons', comparisonRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/users', userRoutes);
+app.use('/api/geocoding', geocodingRoutes);
 
 // Error handling middleware
 app.use((err, req, res, next) => {

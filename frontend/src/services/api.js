@@ -33,4 +33,7 @@ export const calculateDrivingDistance = (origin, destination) =>
 export const getUserSettings = () => api.get('/users/settings');
 export const updateUserSettings = (settings) => api.put('/users/settings', settings);
 
+export const forwardGeocode = (address) => api.get(`/geocoding/forward?address=${encodeURIComponent(address)}`);
+export const reverseGeocode = (lng, lat) => api.get(`/geocoding/reverse?lng=${lng}&lat=${lat}`);
+
 export default api;
