@@ -3,6 +3,7 @@ const Comparison = require('../models/comparison');
 const sequelize = require('../config/database');
 
 const K_FACTOR = 32;
+const MAX_COMPARISONS = 10;
 
 function calculateEloRating(winnerRating, loserRating) {
   // Ensure the ratings are numeric
@@ -39,6 +40,12 @@ exports.submitComparison = async (req, res) => {
   const transaction = await sequelize.transaction();
 
   try {
+    const comparisonCount = await Comparison.count({ where: { userId } });
+    if (comparisonCount >= MAX_COMPARISONS) {
+      await transaction.rollback();
+      return res.status(403).json({ message: 'Maximum comparisons reached', redirectTo: '/rankings' });
+    }
+
     const winner = await Accommodation.findByPk(winnerAccommodationId, { transaction });
     const loser = await Accommodation.findByPk(loserAccommodationId, { transaction });
 
@@ -68,9 +75,23 @@ exports.submitComparison = async (req, res) => {
 
     await transaction.commit();
 
-    res.status(201).json({ message: 'Comparison submitted successfully' });
+    if (comparisonCount + 1 >= MAX_COMPARISONS) {
+      res.status(201).json({ message: 'Comparison submitted successfully', isLastComparison: true, redirectTo: '/rankings' });
+    } else {
+      res.status(201).json({ message: 'Comparison submitted successfully' });
+    }
   } catch (error) {
     await transaction.rollback();
+    res.status(400).json({ error: error.message });
+  }
+};
+
+exports.getComparisonCount = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const count = await Comparison.count({ where: { userId } });
+    res.json({ count, maxComparisons: MAX_COMPARISONS });
+  } catch (error) {
     res.status(400).json({ error: error.message });
   }
 };

@@ -22,6 +22,7 @@ export const startGuestSession = (name) => api.post('/auth/guest', { name });
 export const getRandomPair = () => api.get('/comparisons/random-pair');
 export const submitComparison = (winnerAccommodationId, loserAccommodationId) => 
   api.post('/comparisons/submit', { winnerAccommodationId, loserAccommodationId });
+export const getComparisonCount = () => api.get('/comparisons/count');
 export const getRankings = () => api.get('/comparisons/rankings');
 export const getUserComparisons = () => api.get('/users/comparisons');
 export const getAccommodationDetails = (id) => api.get(`/accommodations/${id}`);

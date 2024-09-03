@@ -1,13 +1,32 @@
 // src/pages/Comparison.js
 import React, { useState, useEffect, useContext } from 'react';
 import { Container, Typography, Button, Card, CardContent, CardMedia, Grid, Chip, Rating } from '@mui/material';
-import { getRandomPair, submitComparison, calculateDrivingDistance } from '../services/api';
+import { useNavigate } from 'react-router-dom';
+import { getComparisonCount, getRandomPair, submitComparison, calculateDrivingDistance } from '../services/api';
 import { LocationContext } from '../contexts/LocationContext';
 
 const Comparison = () => {
   const [accommodations, setAccommodations] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [comparisonCount, setComparisonCount] = useState(0);
+  const [maxComparisons, setMaxComparisons] = useState(10);
+  const navigate = useNavigate();
   const { location } = useContext(LocationContext);
+
+  useEffect(() => {
+    fetchComparisonCount();
+    fetchRandomPair();
+  }, [location]);
+
+  const fetchComparisonCount = async () => {
+    try {
+      const response = await getComparisonCount();
+      setComparisonCount(response.data.count);
+      setMaxComparisons(response.data.maxComparisons);
+    } catch (error) {
+      console.error('Error fetching comparison count:', error);
+    }
+  };
 
   const fetchRandomPair = async () => {
     setLoading(true);
@@ -27,18 +46,36 @@ const Comparison = () => {
     setLoading(false);
   };
 
-  useEffect(() => {
-    fetchRandomPair();
-  }, [location]);
-
   const handleChoice = async (winnerAccommodationId, loserAccommodationId) => {
     try {
-      await submitComparison(winnerAccommodationId, loserAccommodationId);
-      fetchRandomPair();
+      const response = await submitComparison(winnerAccommodationId, loserAccommodationId);
+      if (response.data.isLastComparison) {
+        navigate('/rankings');
+      } else {
+        fetchRandomPair();
+        setComparisonCount(prevCount => prevCount + 1);
+      }
     } catch (error) {
-      console.error('Error submitting comparison:', error);
+      if (error.response && error.response.status === 403) {
+        navigate('/rankings');
+      } else {
+        console.error('Error submitting comparison:', error);
+      }
     }
   };
+
+  if (comparisonCount >= maxComparisons) {
+    return (
+      <Container>
+        <Typography variant="h4" component="h1" gutterBottom>
+          Done! Thank you very much for your participation!
+        </Typography>
+        <Button variant="contained" color="primary" onClick={() => navigate('/rankings')}>
+          View Rankings
+        </Button>
+      </Container>
+    );
+  }
 
   if (loading) {
     return <Typography>Loading...</Typography>;
@@ -47,7 +84,7 @@ const Comparison = () => {
   return (
     <Container>
       <Typography variant="h4" component="h1" gutterBottom>
-        Which accommodation do you prefer?
+        Which accommodation do you prefer? ({comparisonCount}/{maxComparisons})
       </Typography>
       <Grid container spacing={3}>
         {accommodations.map((accommodation) => (
