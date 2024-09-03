@@ -4,12 +4,14 @@ import { Container, Typography, Button, Card, CardContent, CardMedia, Grid, Chip
 import { useNavigate } from 'react-router-dom';
 import { getComparisonCount, getRandomPair, submitComparison, calculateDrivingDistance } from '../services/api';
 import { LocationContext } from '../contexts/LocationContext';
+import ResultsCalculation from '../components/ResultsCalculation';
 
 const Comparison = () => {
   const [accommodations, setAccommodations] = useState([]);
   const [loading, setLoading] = useState(true);
   const [comparisonCount, setComparisonCount] = useState(0);
   const [maxComparisons, setMaxComparisons] = useState(10);
+  const [isCalculatingResults, setIsCalculatingResults] = useState(false);
   const navigate = useNavigate();
   const { location } = useContext(LocationContext);
 
@@ -50,19 +52,44 @@ const Comparison = () => {
     try {
       const response = await submitComparison(winnerAccommodationId, loserAccommodationId);
       if (response.data.isLastComparison) {
-        navigate('/rankings');
+        setIsCalculatingResults(true);
+        // Simulate a delay for result calculation (replace with actual calculation if needed)
+        setTimeout(() => {
+          navigate('/rankings');
+        }, 1500); // 3 seconds delay
       } else {
         fetchRandomPair();
         setComparisonCount(prevCount => prevCount + 1);
       }
     } catch (error) {
       if (error.response && error.response.status === 403) {
-        navigate('/rankings');
+        setIsCalculatingResults(true);
+        // Simulate a delay for result calculation (replace with actual calculation if needed)
+        setTimeout(() => {
+          navigate('/rankings');
+        }, 1500); // 3 seconds delay
       } else {
         console.error('Error submitting comparison:', error);
       }
     }
   };
+
+  if (comparisonCount >= maxComparisons) {
+    return (
+      <Container>
+        <Typography variant="h4" component="h1" gutterBottom>
+          Done! Thank you very much for your participation!
+        </Typography>
+        <Button variant="contained" color="primary" onClick={() => navigate('/rankings')}>
+          View Rankings
+        </Button>
+      </Container>
+    );
+  }
+
+  if (isCalculatingResults) {
+    return <ResultsCalculation />;
+  }
 
   if (comparisonCount >= maxComparisons) {
     return (
