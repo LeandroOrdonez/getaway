@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { Container, Typography, TextField, Button, Grid } from '@mui/material';
+import { Container, Heading, Text, TextField, Button, Flex, Card, Box } from '@radix-ui/themes';
+import { PersonIcon, EnvelopeClosedIcon, CheckIcon } from '@radix-ui/react-icons';
 import { getUserSettings, updateUserSettings } from '../services/api';
-import ErrorAlert from '../components/ErrorAlert';
 
 const UserSettings = () => {
   const [settings, setSettings] = useState({
@@ -33,6 +33,8 @@ const UserSettings = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setError(null);
+    setSuccess(false);
     try {
       await updateUserSettings(settings);
       setSuccess(true);
@@ -41,51 +43,59 @@ const UserSettings = () => {
     }
   };
 
-  if (loading) return <Typography>Loading...</Typography>;
+  if (loading) return <Text>Loading...</Text>;
 
   return (
-    <Container>
-      <Typography variant="h4" component="h1" gutterBottom>
-        User Settings
-      </Typography>
-      <form onSubmit={handleSubmit}>
-        <Grid container spacing={3}>
-          <Grid item xs={12}>
-            <TextField
-              fullWidth
-              label="Username"
-              name="username"
-              value={settings.username}
-              onChange={handleChange}
-            />
-          </Grid>
-          <Grid item xs={12}>
-            <TextField
-              fullWidth
-              label="Email"
-              name="email"
-              type="email"
-              value={settings.email}
-              onChange={handleChange}
-            />
-          </Grid>
-          <Grid item xs={12}>
-            <Button type="submit" variant="contained" color="primary">
-              Save Changes
-            </Button>
-          </Grid>
-        </Grid>
-      </form>
-      {success && (
-        <Typography color="success" style={{ marginTop: '1rem' }}>
-          Settings updated successfully!
-        </Typography>
-      )}
-      <ErrorAlert
-        open={!!error}
-        message={error}
-        onClose={() => setError(null)}
-      />
+    <Container size="1">
+      <Card>
+        <Flex direction="column" gap="4" style={{ maxWidth: 400, margin: '0 auto' }}>
+          <Heading size="6" align="center">User Settings</Heading>
+          <Text size="2" color="gray" align="center">
+            Update your account information below.
+          </Text>
+          <form onSubmit={handleSubmit}>
+            <Flex direction="column" gap="3">
+              <TextField.Root>
+                <TextField.Slot>
+                  <PersonIcon height="16" width="16" />
+                </TextField.Slot>
+                <TextField.Input 
+                  placeholder="Username"
+                  name="username"
+                  value={settings.username}
+                  onChange={handleChange}
+                  required
+                />
+              </TextField.Root>
+              <TextField.Root>
+                <TextField.Slot>
+                  <EnvelopeClosedIcon height="16" width="16" />
+                </TextField.Slot>
+                <TextField.Input 
+                  type="email"
+                  placeholder="Email"
+                  name="email"
+                  value={settings.email}
+                  onChange={handleChange}
+                  required
+                />
+              </TextField.Root>
+              <Button type="submit">Save Changes</Button>
+            </Flex>
+          </form>
+          {success && (
+            <Flex align="center" gap="2">
+              <CheckIcon color="green" />
+              <Text color="green" size="2">Settings updated successfully!</Text>
+            </Flex>
+          )}
+          {error && (
+            <Text color="red" size="2">
+              {error}
+            </Text>
+          )}
+        </Flex>
+      </Card>
     </Container>
   );
 };

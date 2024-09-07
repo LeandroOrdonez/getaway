@@ -1,7 +1,7 @@
 import React from 'react';
 import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
-import { ThemeProvider, createTheme } from '@mui/material/styles';
-import CssBaseline from '@mui/material/CssBaseline';
+import { Theme } from '@radix-ui/themes';
+import '@radix-ui/themes/styles.css';
 import { LocationProvider } from './contexts/LocationContext';
 
 import Header from './components/Header';
@@ -18,8 +18,6 @@ import AccommodationDetail from './pages/AccommodationDetail';
 import UserSettings from './pages/UserSettings';
 import AdminInterface from './pages/AdminInterface';
 
-const theme = createTheme();
-
 const ProtectedAdminRoute = ({ children }) => {
   const isAuthenticated = !!localStorage.getItem('token');
   const isAdmin = localStorage.getItem('userType') === 'admin';
@@ -33,8 +31,7 @@ const ProtectedAdminRoute = ({ children }) => {
 
 function App() {
   return (
-    <ThemeProvider theme={theme}>
-      <CssBaseline />
+    <Theme appearance="light" accentColor="blue" grayColor="slate" radius="medium" scaling="100%">
       <LocationProvider>
         <Router>
           <div className="App">
@@ -71,7 +68,7 @@ function App() {
           </div>
         </Router>
       </LocationProvider>
-    </ThemeProvider>
+    </Theme>
   );
 }
 

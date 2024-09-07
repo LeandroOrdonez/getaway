@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
-import { TextField, Button, Container, Typography, Link } from '@mui/material';
-import { login } from '../services/api';
 import { useNavigate } from 'react-router-dom';
+import { Container, Heading, TextField, Button, Text, Flex, AlertDialog } from '@radix-ui/themes';
+import { login } from '../services/api';
 
 const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
@@ -16,41 +17,49 @@ const Login = () => {
       localStorage.setItem('userType', response.data.userType);
       navigate('/comparison');
     } catch (error) {
-      console.error('Error logging in:', error);
+      setError('Login failed. Please check your credentials.');
     }
   };
 
   return (
-    <Container maxWidth="sm">
-      <Typography variant="h4" component="h1" gutterBottom>
-        Login
-      </Typography>
+    <Container size="2" py="9">
+      <Heading size="8" mb="6">Login</Heading>
       <form onSubmit={handleSubmit}>
-        <TextField
-          fullWidth
-          label="Email"
-          type="email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          margin="normal"
-          required
-        />
-        <TextField
-          fullWidth
-          label="Password"
-          type="password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          margin="normal"
-          required
-        />
-        <Button type="submit" variant="contained" color="primary">
-          Login
-        </Button>
+        <Flex direction="column" gap="3">
+          <TextField.Root>
+            <TextField.Input 
+              type="email" 
+              placeholder="Email" 
+              value={email} 
+              onChange={(e) => setEmail(e.target.value)} 
+              required 
+            />
+          </TextField.Root>
+          <TextField.Root>
+            <TextField.Input 
+              type="password" 
+              placeholder="Password" 
+              value={password} 
+              onChange={(e) => setPassword(e.target.value)} 
+              required 
+            />
+          </TextField.Root>
+          <Button type="submit">Login</Button>
+        </Flex>
       </form>
-      <Typography variant="body2" style={{ marginTop: '1rem' }}>
-        Don't have an account? <Link href="/register">Register</Link>
-      </Typography>
+      <AlertDialog.Root open={!!error}>
+        <AlertDialog.Content>
+          <AlertDialog.Title>Error</AlertDialog.Title>
+          <AlertDialog.Description>{error}</AlertDialog.Description>
+          <Flex gap="3" mt="4" justify="end">
+            <AlertDialog.Cancel>
+              <Button variant="soft" color="gray" onClick={() => setError('')}>
+                Close
+              </Button>
+            </AlertDialog.Cancel>
+          </Flex>
+        </AlertDialog.Content>
+      </AlertDialog.Root>
     </Container>
   );
 };

@@ -1,9 +1,37 @@
 import React, { useState, useEffect, useContext } from 'react';
-import { Container, Typography, Button, Card, CardContent, CardMedia, Grid, Chip, Rating } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
+import { Container, Heading, Text, Card, Flex, Button, Badge, AspectRatio, Grid, Box } from '@radix-ui/themes';
+import { StarFilledIcon, ExternalLinkIcon } from '@radix-ui/react-icons';
+import * as ProgressPrimitive from '@radix-ui/react-progress';
+import { styled } from '@stitches/react';
 import { getComparisonCount, getRandomPair, submitComparison, calculateDrivingDistance } from '../services/api';
 import { LocationContext } from '../contexts/LocationContext';
 import ResultsCalculation from '../components/ResultsCalculation';
+
+// Styled Progress component
+const StyledProgress = styled(ProgressPrimitive.Root, {
+  position: 'relative',
+  overflow: 'hidden',
+  background: 'var(--gray-4)',
+  borderRadius: '99999px',
+  width: '100%',
+  height: '10px',
+});
+
+const StyledIndicator = styled(ProgressPrimitive.Indicator, {
+  backgroundColor: 'var(--accent-9)',
+  width: '100%',
+  height: '100%',
+  transition: 'transform 660ms cubic-bezier(0.65, 0, 0.35, 1)',
+});
+
+const Progress = ({ value }) => {
+  return (
+    <StyledProgress value={value}>
+      <StyledIndicator style={{ transform: `translateX(-${100 - value}%)` }} />
+    </StyledProgress>
+  );
+};
 
 const Comparison = () => {
   const [accommodations, setAccommodations] = useState([]);
@@ -56,10 +84,9 @@ const Comparison = () => {
       const response = await submitComparison(winnerAccommodationId, loserAccommodationId);
       if (response.data.isLastComparison) {
         setIsCalculatingResults(true);
-        // Simulate a delay for result calculation (replace with actual calculation if needed)
         setTimeout(() => {
           navigate('/rankings');
-        }, 1500); // 3 seconds delay
+        }, 1500);
       } else {
         fetchRandomPair();
         setComparisonCount(prevCount => prevCount + 1);
@@ -67,10 +94,9 @@ const Comparison = () => {
     } catch (error) {
       if (error.response && error.response.status === 403) {
         setIsCalculatingResults(true);
-        // Simulate a delay for result calculation (replace with actual calculation if needed)
         setTimeout(() => {
           navigate('/rankings');
-        }, 1500); // 3 seconds delay
+        }, 1500);
       } else {
         console.error('Error submitting comparison:', error);
       }
@@ -79,13 +105,9 @@ const Comparison = () => {
 
   if (comparisonCount >= maxComparisons) {
     return (
-      <Container>
-        <Typography variant="h4" component="h1" gutterBottom>
-          Done! Thank you very much for your participation!
-        </Typography>
-        <Button variant="contained" color="primary" onClick={() => navigate('/rankings')}>
-          View Rankings
-        </Button>
+      <Container size="2">
+        <Heading size="6" mb="4">Done! Thank you very much for your participation!</Heading>
+        <Button onClick={() => navigate('/rankings')}>View Rankings</Button>
       </Container>
     );
   }
@@ -94,89 +116,64 @@ const Comparison = () => {
     return <ResultsCalculation />;
   }
 
-  if (comparisonCount >= maxComparisons) {
-    return (
-      <Container>
-        <Typography variant="h4" component="h1" gutterBottom>
-          Done! Thank you very much for your participation!
-        </Typography>
-        <Button variant="contained" color="primary" onClick={() => navigate('/rankings')}>
-          View Rankings
-        </Button>
-      </Container>
-    );
-  }
-
   if (loading) {
-    return <Typography>Loading...</Typography>;
+    return <Text>Loading...</Text>;
   }
 
   return (
-    <Container>
-      <Typography variant="h4" component="h1" gutterBottom>
-        Which accommodation do you prefer? ({comparisonCount}/{maxComparisons})
-      </Typography>
-      <Grid container spacing={3}>
+    <Container size="3">
+      <Heading size="6" mb="4">Which accommodation do you prefer?</Heading>
+      <Text size="3" mb="4">Comparison {comparisonCount + 1} of {maxComparisons}</Text>
+      <Progress value={(comparisonCount / maxComparisons) * 100} />
+      <Box mb="4" /> {/* Added for spacing */}
+      <Grid columns="2" gap="4">
         {accommodations.map((accommodation) => (
-          <Grid item xs={12} sm={6} key={accommodation.id}>
-            <Card>
-              <CardMedia
-                component="img"
-                height="200"
-                image={accommodation.imageUrls[0]}
+          <Card key={accommodation.id}>
+            <AspectRatio ratio={16/9}>
+              <img
+                src={accommodation.imageUrls[0]}
                 alt={accommodation.name}
+                style={{
+                  objectFit: 'cover',
+                  width: '100%',
+                  height: '100%',
+                }}
               />
-              <CardContent>
-                <Typography gutterBottom variant="h5" component="div">
-                  {accommodation.name}
-                </Typography>
-                <Typography variant="body2" color="text.secondary" gutterBottom>
-                  Location: {accommodation.location}
-                </Typography>
-                <Typography variant="body2" color="text.secondary" gutterBottom>
-                  Price per night: ${accommodation.pricePerNight}
-                </Typography>
-                <Typography variant="body2" color="text.secondary" gutterBottom>
-                  Number of rooms: {accommodation.numRooms}
-                </Typography>
-                {accommodation.drivingDistance && (
-                  <Typography variant="body2" color="text.secondary" gutterBottom>
-                    Driving distance: {accommodation.drivingDistance} ({accommodation.drivingDuration})
-                  </Typography>
-                )}
-                <Rating name="read-only" value={accommodation.rating} readOnly precision={0.1} />
-                <Typography variant="body2" color="text.secondary" gutterBottom>
-                  Rating: {accommodation.rating}
-                </Typography>
-                <Typography variant="body2" color="text.secondary" gutterBottom>
-                  Facilities:
-                </Typography>
-                <div>
-                  {accommodation.facilities.map((facility, index) => (
-                    <Chip key={index} label={facility} size="small" style={{ margin: '0 2px 2px 0' }} />
-                  ))}
-                </div>
-                <Button
-                  variant="contained"
-                  color="primary"
+            </AspectRatio>
+            <Box p="3">
+              <Heading size="4" mb="2">{accommodation.name}</Heading>
+              <Text size="2" color="gray" mb="2">Location: {accommodation.location}</Text>
+              <Text size="3" mb="2">Price per night: ${accommodation.pricePerNight}</Text>
+              <Text size="3" mb="2">Number of rooms: {accommodation.numRooms}</Text>
+              {accommodation.drivingDistance && (
+                <Text size="2" color="gray" mb="2">
+                  Driving distance: {accommodation.drivingDistance} ({accommodation.drivingDuration})
+                </Text>
+              )}
+              <Flex align="center" gap="1" mb="2">
+                <StarFilledIcon />
+                <Text size="2">{accommodation.rating}</Text>
+              </Flex>
+              <Flex wrap="wrap" gap="1" mb="3">
+                {accommodation.facilities.map((facility, index) => (
+                  <Badge key={index} size="1">{facility}</Badge>
+                ))}
+              </Flex>
+              <Flex direction="column" gap="2">
+                <Button 
                   onClick={() => handleChoice(accommodation.id, accommodations.find(a => a.id !== accommodation.id).id)}
-                  style={{ marginTop: '10px' }}
                 >
                   Choose this one
                 </Button>
-                <Button
-                  variant="outlined"
-                  color="primary"
-                  href={accommodation.originalListingUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  style={{ marginTop: '10px', marginLeft: '10px' }}
-                >
-                  View Original Listing
+                <Button variant="outline" asChild>
+                  <a href={accommodation.originalListingUrl} target="_blank" rel="noopener noreferrer">
+                    View Original Listing
+                    <ExternalLinkIcon />
+                  </a>
                 </Button>
-              </CardContent>
-            </Card>
-          </Grid>
+              </Flex>
+            </Box>
+          </Card>
         ))}
       </Grid>
     </Container>

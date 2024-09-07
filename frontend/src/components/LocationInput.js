@@ -1,6 +1,6 @@
-// src/components/LocationInput.js
 import React, { useState, useEffect, useContext } from 'react';
-import { TextField, List, ListItem, ListItemText, Button, CircularProgress } from '@mui/material';
+import { TextField, Button, Flex, Text, ScrollArea } from '@radix-ui/themes';
+import { MagnifyingGlassIcon, GlobeIcon } from '@radix-ui/react-icons';
 import { forwardGeocode, reverseGeocode } from '../services/api';
 import { LocationContext } from '../contexts/LocationContext';
 
@@ -75,29 +75,38 @@ const LocationInput = () => {
   };
 
   return (
-    <div>
-      <TextField
-        fullWidth
-        label="Enter location"
-        value={address}
-        onChange={handleAddressChange}
-        disabled={isLoading}
-      />
+    <Flex direction="column" gap="3">
+      <TextField.Root>
+        <TextField.Slot>
+          <MagnifyingGlassIcon height="16" width="16" />
+        </TextField.Slot>
+        <TextField.Input 
+          placeholder="Enter location" 
+          value={address}
+          onChange={handleAddressChange}
+          disabled={isLoading}
+        />
+      </TextField.Root>
       <Button onClick={detectLocation} disabled={isLoading}>
-        {isLoading ? <CircularProgress size={24} /> : 'Detect My Location'}
+        <GlobeIcon />
+        {isLoading ? 'Detecting...' : 'Detect My Location'}
       </Button>
-      <List>
-        {suggestions.map((suggestion, index) => (
-          <ListItem 
-            button 
-            key={index} 
-            onClick={() => handleSuggestionSelect(suggestion)}
-          >
-            <ListItemText primary={suggestion.place_name} />
-          </ListItem>
-        ))}
-      </List>
-    </div>
+      {suggestions.length > 0 && (
+        <ScrollArea style={{ maxHeight: '200px' }}>
+          <Flex direction="column" gap="1">
+            {suggestions.map((suggestion, index) => (
+              <Button 
+                key={index} 
+                variant="soft" 
+                onClick={() => handleSuggestionSelect(suggestion)}
+              >
+                <Text size="2">{suggestion.place_name}</Text>
+              </Button>
+            ))}
+          </Flex>
+        </ScrollArea>
+      )}
+    </Flex>
   );
 };
 

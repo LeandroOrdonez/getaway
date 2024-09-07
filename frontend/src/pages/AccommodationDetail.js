@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
-import { Container, Typography, Card, CardContent, CardMedia, Grid, Chip, Rating, Button } from '@mui/material';
+import { Container, Heading, Text, Card, Flex, Button, Badge, AspectRatio, Inset } from '@radix-ui/themes';
+import { StarFilledIcon } from '@radix-ui/react-icons';
 import { getAccommodationDetails } from '../services/api';
 
 const AccommodationDetail = () => {
@@ -23,45 +24,45 @@ const AccommodationDetail = () => {
     fetchAccommodationDetails();
   }, [id]);
 
-  if (loading) return <Typography>Loading...</Typography>;
-  if (!accommodation) return <Typography>Accommodation not found</Typography>;
+  if (loading) return <Text>Loading...</Text>;
+  if (!accommodation) return <Text>Accommodation not found</Text>;
 
   return (
-    <Container>
-      <Card>
-        <CardMedia
-          component="img"
-          height="300"
-          image={accommodation.imageUrls[0]}
-          alt={accommodation.name}
-        />
-        <CardContent>
-          <Typography variant="h4" gutterBottom>{accommodation.name}</Typography>
-          <Typography variant="h6" color="text.secondary" gutterBottom>
-            Location: {accommodation.location}
-          </Typography>
-          <Typography variant="body1" gutterBottom>
-            Price per night: ${accommodation.pricePerNight}
-          </Typography>
-          <Typography variant="body1" gutterBottom>
-            Number of rooms: {accommodation.numRooms}
-          </Typography>
-          <Rating name="read-only" value={accommodation.rating} readOnly />
-          <Typography variant="body2" color="text.secondary" gutterBottom>
-            Rating: {accommodation.rating}
-          </Typography>
-          <Typography variant="body1" gutterBottom>Facilities:</Typography>
-          <Grid container spacing={1} style={{ marginBottom: '16px' }}>
+    <Container size="3">
+      <Card size="3">
+        <Inset clip="padding-box" side="top" pb="current">
+          <AspectRatio ratio={16/9}>
+            <img
+              src={accommodation.imageUrls[0]}
+              alt={accommodation.name}
+              style={{
+                objectFit: 'cover',
+                width: '100%',
+                height: '100%',
+              }}
+            />
+          </AspectRatio>
+        </Inset>
+        <Flex direction="column" gap="3">
+          <Heading size="6">{accommodation.name}</Heading>
+          <Text size="3" color="gray">Location: {accommodation.location}</Text>
+          <Text size="4">Price per night: ${accommodation.pricePerNight}</Text>
+          <Text size="4">Number of rooms: {accommodation.numRooms}</Text>
+          <Flex align="center" gap="1">
+            <StarFilledIcon />
+            <Text size="3">{accommodation.rating}</Text>
+          </Flex>
+          <Flex wrap="wrap" gap="2">
             {accommodation.facilities.map((facility, index) => (
-              <Grid item key={index}>
-                <Chip label={facility} />
-              </Grid>
+              <Badge key={index} size="1">{facility}</Badge>
             ))}
-          </Grid>
-          <Button variant="contained" color="primary" href={accommodation.originalListingUrl} target="_blank">
-            View Original Listing
+          </Flex>
+          <Button asChild>
+            <a href={accommodation.originalListingUrl} target="_blank" rel="noopener noreferrer">
+              View Original Listing
+            </a>
           </Button>
-        </CardContent>
+        </Flex>
       </Card>
     </Container>
   );

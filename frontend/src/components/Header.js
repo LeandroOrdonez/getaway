@@ -1,7 +1,6 @@
-// src/components/Header.js
 import React from 'react';
-import { AppBar, Toolbar, Typography, Button } from '@mui/material';
 import { Link, useNavigate } from 'react-router-dom';
+import { Flex, Button, Text } from '@radix-ui/themes';
 
 const Header = () => {
   const isLoggedIn = !!localStorage.getItem('token');
@@ -15,49 +14,42 @@ const Header = () => {
   };
 
   return (
-    <AppBar position="static">
-      <Toolbar>
-        <Typography variant="h6" style={{ flexGrow: 1 }}>
-          Getaway Match
-        </Typography>
-        <Button color="inherit" component={Link} to="/">
-          Home
+    <Flex as="header" p="4" justify="between" align="center">
+      <Text size="5" weight="bold">Getaway Match</Text>
+      <Flex as="nav" gap="3">
+        <Button variant="ghost" asChild>
+          <Link to="/">Home</Link>
         </Button>
-        <Button color="inherit" component={Link} to="/comparison">
-          Compare
+        <Button variant="ghost" asChild>
+          <Link to="/comparison">Compare</Link>
         </Button>
-        <Button color="inherit" component={Link} to="/rankings">
-          Rankings
+        <Button variant="ghost" asChild>
+          <Link to="/rankings">Rankings</Link>
         </Button>
         {isLoggedIn ? (
           <>
-            <Button color="inherit" component={Link} to="/profile">
-              Profile
+            <Button variant="ghost" asChild>
+              <Link to="/profile">Profile</Link>
             </Button>
             {isAdmin && (
-              <Button color="inherit" component={Link} to="/admin">
-                Admin
+              <Button variant="ghost" asChild>
+                <Link to="/admin">Admin</Link>
               </Button>
             )}
-            <Button 
-              color="inherit" 
-              onClick={handleLogout}
-            >
-              Logout
-            </Button>
+            <Button variant="soft" onClick={handleLogout}>Logout</Button>
           </>
         ) : (
           <>
-            <Button color="inherit" component={Link} to="/login">
-              Login
+            <Button variant="soft" asChild>
+              <Link to="/login">Login</Link>
             </Button>
-            <Button color="inherit" component={Link} to="/register">
-              Register
+            <Button variant="soft" asChild>
+              <Link to="/register">Register</Link>
             </Button>
           </>
         )}
-      </Toolbar>
-    </AppBar>
+      </Flex>
+    </Flex>
   );
 };
 

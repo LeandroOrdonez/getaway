@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { Container, Typography, TextField, Button, Grid, Chip, Input } from '@mui/material';
+import { Container, Heading, TextField, Button, Flex, Text, Badge, Card, Grid, Box } from '@radix-ui/themes';
+import { PlusIcon, Cross2Icon } from '@radix-ui/react-icons';
 import { createAccommodation } from '../services/api';
 
 const AdminInterface = () => {
@@ -14,6 +15,7 @@ const AdminInterface = () => {
     originalListingUrl: '',
   });
   const [facility, setFacility] = useState('');
+  const [message, setMessage] = useState({ type: '', content: '' });
 
   const handleChange = (e) => {
     setAccommodation({ ...accommodation, [e.target.name]: e.target.value });
@@ -52,130 +54,149 @@ const AdminInterface = () => {
     e.preventDefault();
     try {
       await createAccommodation(accommodation);
-      alert('Accommodation created successfully!');
+      setMessage({ type: 'success', content: 'Accommodation created successfully!' });
       // Reset form
       setAccommodation({
         name: '',
         location: '',
         pricePerNight: '',
         numRooms: '',
+        rating: '',
         facilities: [],
         imageUrls: [],
         originalListingUrl: '',
       });
     } catch (error) {
       console.error('Error creating accommodation:', error);
-      alert('Failed to create accommodation. Please try again.');
+      setMessage({ type: 'error', content: 'Failed to create accommodation. Please try again.' });
     }
   };
 
   return (
-    <Container>
-      <Typography variant="h4" component="h1" gutterBottom>
-        Admin Interface - Create Accommodation
-      </Typography>
+    <Container size="2">
+      <Heading size="8" mb="4">Admin Interface - Create Accommodation</Heading>
       <form onSubmit={handleSubmit}>
-        <Grid container spacing={3}>
-          <Grid item xs={12}>
-            <TextField
-              fullWidth
-              label="Name"
+        <Flex direction="column" gap="4">
+          <TextField.Root>
+            <TextField.Input 
+              placeholder="Accommodation Name" 
               name="name"
               value={accommodation.name}
               onChange={handleChange}
               required
             />
-          </Grid>
-          <Grid item xs={12}>
-            <TextField
-              fullWidth
-              label="Location"
+          </TextField.Root>
+
+          <TextField.Root>
+            <TextField.Input 
+              placeholder="Location" 
               name="location"
               value={accommodation.location}
               onChange={handleChange}
               required
             />
+          </TextField.Root>
+
+          <Grid columns="2" gap="4">
+            <TextField.Root>
+              <TextField.Input 
+                type="number"
+                placeholder="Price per Night" 
+                name="pricePerNight"
+                value={accommodation.pricePerNight}
+                onChange={handleChange}
+                required
+              />
+            </TextField.Root>
+
+            <TextField.Root>
+              <TextField.Input 
+                type="number"
+                placeholder="Number of Rooms" 
+                name="numRooms"
+                value={accommodation.numRooms}
+                onChange={handleChange}
+                required
+              />
+            </TextField.Root>
           </Grid>
-          <Grid item xs={12} sm={6}>
-            <TextField
-              fullWidth
-              label="Price per Night"
-              name="pricePerNight"
+
+          <TextField.Root>
+            <TextField.Input 
               type="number"
-              value={accommodation.pricePerNight}
+              placeholder="Rating (0-5)" 
+              name="rating"
+              value={accommodation.rating}
               onChange={handleChange}
               required
+              step="0.1"
+              min="0"
+              max="5"
             />
-          </Grid>
-          <Grid item xs={12} sm={6}>
-            <TextField
-              fullWidth
-              label="Number of Rooms"
-              name="numRooms"
-              type="number"
-              value={accommodation.numRooms}
-              onChange={handleChange}
-              required
-            />
-          </Grid>
-          <Grid item xs={12}>
-            <TextField
-              fullWidth
-              label="Original Listing URL"
+          </TextField.Root>
+
+          <TextField.Root>
+            <TextField.Input 
+              placeholder="Original Listing URL" 
               name="originalListingUrl"
               value={accommodation.originalListingUrl}
               onChange={handleChange}
               required
             />
-          </Grid>
-          <Grid item xs={12} sm={6}>
-            <TextField
-              fullWidth
-              label="Rating"
-              name="rating"
-              type="number"
-              inputProps={{ step: 0.1, min: 0, max: 5 }}
-              value={accommodation.rating}
-              onChange={handleChange}
-              required
-            />
-          </Grid>
-          <Grid item xs={12}>
-            <TextField
-              fullWidth
-              label="Add Facility"
-              value={facility}
-              onChange={(e) => setFacility(e.target.value)}
-            />
-            <Button onClick={handleAddFacility}>Add Facility</Button>
-            <div style={{ marginTop: '10px' }}>
-              {accommodation.facilities.map((f, index) => (
-                <Chip
-                  key={index}
-                  label={f}
-                  onDelete={() => handleRemoveFacility(f)}
-                  style={{ margin: '0 5px 5px 0' }}
-                />
-              ))}
-            </div>
-          </Grid>
-          <Grid item xs={12}>
-            <Input
-              type="file"
-              inputProps={{ multiple: true }}
-              onChange={handleImageUpload}
-            />
-            <Typography variant="caption" display="block" gutterBottom>
-              Selected Images: {accommodation.imageUrls.length}
-            </Typography>
-          </Grid>
-          <Grid item xs={12}>
-            <Button type="submit" variant="contained" color="primary">
-              Create Accommodation
+          </TextField.Root>
+
+          <Flex align="center" gap="2">
+            <TextField.Root style={{ flex: 1 }}>
+              <TextField.Input 
+                placeholder="Add Facility" 
+                value={facility}
+                onChange={(e) => setFacility(e.target.value)}
+              />
+            </TextField.Root>
+            <Button onClick={handleAddFacility} type="button">
+              <PlusIcon />
+              Add
             </Button>
-          </Grid>
-        </Grid>
+          </Flex>
+
+          <Card>
+            <Flex wrap="wrap" gap="2">
+              {accommodation.facilities.map((f, index) => (
+                <Badge key={index} variant="soft">
+                  {f}
+                  <Box ml="1" style={{ cursor: 'pointer' }} onClick={() => handleRemoveFacility(f)}>
+                    <Cross2Icon />
+                  </Box>
+                </Badge>
+              ))}
+            </Flex>
+          </Card>
+
+          <Box>
+            <Text as="label" size="2" mb="2" display="block">
+              Upload Images
+            </Text>
+            <input
+              type="file"
+              multiple
+              onChange={handleImageUpload}
+              style={{ display: 'block', marginTop: '4px' }}
+            />
+          </Box>
+
+          <Text size="2">Selected Images: {accommodation.imageUrls.length}</Text>
+
+          <Button type="submit">Create Accommodation</Button>
+        </Flex>
       </form>
+
+      {message.content && (
+        <Box mt="4">
+          <Text color={message.type === 'success' ? 'green' : 'red'}>
+            {message.content}
+          </Text>
+        </Box>
+      )}
     </Container>
   );
 };

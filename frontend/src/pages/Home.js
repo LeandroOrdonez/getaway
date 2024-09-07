@@ -1,50 +1,72 @@
 import React from 'react';
-import { Container, Typography, Button, Grid } from '@mui/material';
 import { Link } from 'react-router-dom';
+import { Container, Heading, Text, Button, Flex, Card, Grid, Box } from '@radix-ui/themes';
+import { PersonIcon, LockClosedIcon, GlobeIcon } from '@radix-ui/react-icons';
 import LocationInput from '../components/LocationInput';
 
 const Home = () => {
   return (
-    <Container>
-      <Typography variant="h3" component="h1" gutterBottom>
-        Welcome to Getaway Match
-      </Typography>
-      <LocationInput />
-      <Grid container spacing={3} style={{ marginTop: '2rem' }}>
-        <Grid item xs={12} sm={4}>
-          <Button
-            component={Link}
-            to="/guest"
-            variant="contained"
-            color="primary"
-            fullWidth
-          >
-            Continue as Guest
-          </Button>
+    <Container size="3">
+      <Flex direction="column" gap="6" my="6">
+        <Box>
+          <Heading size="9" align="center" mb="2">Welcome to Getaway Match</Heading>
+          <Text size="5" align="center" color="gray">
+            Find your perfect accommodation by comparing options side by side.
+          </Text>
+        </Box>
+
+        <Card>
+          <Heading size="6" mb="4">Set Your Location</Heading>
+          <LocationInput />
+        </Card>
+
+        <Grid columns={{ initial: '1', sm: '3' }} gap="4">
+          <Card>
+            <Flex direction="column" align="center" gap="2">
+              <Box mb="2">
+                <PersonIcon height="32" width="32" />
+              </Box>
+              <Heading size="4">Continue as Guest</Heading>
+              <Text size="2" align="center" mb="4">
+                Start comparing accommodations without creating an account.
+              </Text>
+              <Button asChild>
+                <Link to="/guest">Start as Guest</Link>
+              </Button>
+            </Flex>
+          </Card>
+
+          <Card>
+            <Flex direction="column" align="center" gap="2">
+              <Box mb="2">
+                <LockClosedIcon height="32" width="32" />
+              </Box>
+              <Heading size="4">Login</Heading>
+              <Text size="2" align="center" mb="4">
+                Access your account to continue your comparisons.
+              </Text>
+              <Button asChild>
+                <Link to="/login">Login</Link>
+              </Button>
+            </Flex>
+          </Card>
+
+          <Card>
+            <Flex direction="column" align="center" gap="2">
+              <Box mb="2">
+                <GlobeIcon height="32" width="32" />
+              </Box>
+              <Heading size="4">Register</Heading>
+              <Text size="2" align="center" mb="4">
+                Create an account to save your preferences and comparisons.
+              </Text>
+              <Button asChild>
+                <Link to="/register">Register</Link>
+              </Button>
+            </Flex>
+          </Card>
         </Grid>
-        <Grid item xs={12} sm={4}>
-          <Button
-            component={Link}
-            to="/login"
-            variant="contained"
-            color="secondary"
-            fullWidth
-          >
-            Login
-          </Button>
-        </Grid>
-        <Grid item xs={12} sm={4}>
-          <Button
-            component={Link}
-            to="/register"
-            variant="outlined"
-            color="primary"
-            fullWidth
-          >
-            Register
-          </Button>
-        </Grid>
-      </Grid>
+      </Flex>
     </Container>
   );
 };
