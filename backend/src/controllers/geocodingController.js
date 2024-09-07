@@ -34,3 +34,13 @@ exports.reverseGeocode = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
+
+exports.calculateDrivingDistance = async (req, res) => {
+  try {
+    const { from, to } = req.query;
+    const result = await mapboxService.calculateDrivingDistance(from, to);
+    res.json(result);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};

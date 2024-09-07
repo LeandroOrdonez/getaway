@@ -9,7 +9,7 @@ const Comparison = sequelize.define('Comparison', {
     autoIncrement: true,
   },
   userId: {
-    type: DataTypes.STRING,
+    type: DataTypes.UUID,
     allowNull: false,
   },
   userType: {

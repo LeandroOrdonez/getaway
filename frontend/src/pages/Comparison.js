@@ -1,4 +1,3 @@
-// src/pages/Comparison.js
 import React, { useState, useEffect, useContext } from 'react';
 import { Container, Typography, Button, Card, CardContent, CardMedia, Grid, Chip, Rating } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
@@ -35,9 +34,13 @@ const Comparison = () => {
     try {
       const response = await getRandomPair();
       const accommodationsWithDistance = await Promise.all(response.data.map(async (acc) => {
-        if (location) {
-          const distanceResponse = await calculateDrivingDistance(location, acc.location);
-          return { ...acc, drivingDistance: distanceResponse.data.distance };
+        if (location && location.place_name) {
+          const distanceResponse = await calculateDrivingDistance(location.place_name, acc.location);
+          return { 
+            ...acc, 
+            drivingDistance: `${distanceResponse.data.distance.toFixed(1)} km`,
+            drivingDuration: `${distanceResponse.data.duration.toFixed(0)} mins`
+          };
         }
         return acc;
       }));
@@ -138,7 +141,7 @@ const Comparison = () => {
                 </Typography>
                 {accommodation.drivingDistance && (
                   <Typography variant="body2" color="text.secondary" gutterBottom>
-                    Driving distance: {accommodation.drivingDistance}
+                    Driving distance: {accommodation.drivingDistance} ({accommodation.drivingDuration})
                   </Typography>
                 )}
                 <Rating name="read-only" value={accommodation.rating} readOnly precision={0.1} />

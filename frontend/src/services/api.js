@@ -28,13 +28,15 @@ export const getUserComparisons = () => api.get('/users/comparisons');
 export const getAccommodationDetails = (id) => api.get(`/accommodations/${id}`);
 export const searchRankings = (searchTerm) => api.get(`/comparisons/rankings?search=${searchTerm}`);
 export const createAccommodation = (data) => api.post('/accommodations', data);
-export const calculateDrivingDistance = (origin, destination) => 
-  api.post('/accommodations/calculate-distance', { origin, destination });
+// export const calculateDrivingDistance = (origin, destination) => 
+//   api.post('/accommodations/calculate-distance', { origin, destination });
 
 export const getUserSettings = () => api.get('/users/settings');
 export const updateUserSettings = (settings) => api.put('/users/settings', settings);
 
 export const forwardGeocode = (address) => api.get(`/geocoding/forward?address=${encodeURIComponent(address)}`);
 export const reverseGeocode = (lng, lat) => api.get(`/geocoding/reverse?lng=${lng}&lat=${lat}`);
+export const calculateDrivingDistance = (from, to) => 
+  api.get(`/geocoding/driving-distance?from=${encodeURIComponent(from)}&to=${encodeURIComponent(to)}`);
 
 export default api;

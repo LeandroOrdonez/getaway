@@ -1,4 +1,5 @@
 require('dotenv').config();
+const { v4: uuidv4 } = require('uuid');
 const { Sequelize } = require('sequelize');
 const bcrypt = require('bcryptjs');
 
@@ -8,6 +9,10 @@ const sequelize = new Sequelize(process.env.DB_NAME, process.env.DB_USER, proces
 });
 
 const User = sequelize.define('User', {
+  id: {
+    type: Sequelize.UUIDV4,
+    primaryKey: true,
+  },
   username: {
     type: Sequelize.STRING,
     allowNull: false,
@@ -39,6 +44,7 @@ async function createAdminUser() {
     // Sync the model with the database
     await User.sync();
 
+    const adminUserId = uuidv4();
     const adminUsername = 'admin';
     const adminEmail = 'leandro.ordonez.ante@gmail.com';
     const adminPassword = '4dm1n.p455w0rd';
@@ -49,6 +55,7 @@ async function createAdminUser() {
     const [user, created] = await User.findOrCreate({
       where: { email: adminEmail },
       defaults: {
+        id: adminUserId,
         username: adminUsername,
         password: hashedPassword,
         isAdmin: true,
