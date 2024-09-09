@@ -29,6 +29,21 @@ const ProtectedAdminRoute = ({ children }) => {
   return children;
 };
 
+const ProtectedUserRoute = ({ children }) => {
+  const isAuthenticated = !!localStorage.getItem('token');
+  const isAdmin = localStorage.getItem('userType') === 'admin';
+
+  if (!isAuthenticated) {
+    return <Navigate to="/login" replace />;
+  }
+
+  if (isAdmin) {
+    return <Navigate to="/admin" replace />;
+  }
+
+  return children;
+};
+
 function App() {
   return (
     <Theme appearance="light" accentColor="blue" grayColor="slate" radius="medium" scaling="100%">
@@ -39,9 +54,9 @@ function App() {
             <Routes>
               <Route path="/" element={<Home />} />
               <Route path="/comparison" element={
-                <ProtectedRoute>
+                <ProtectedUserRoute>
                   <Comparison />
-                </ProtectedRoute>
+                </ProtectedUserRoute>
               } />
               <Route path="/login" element={<Login />} />
               <Route path="/register" element={<Register />} />

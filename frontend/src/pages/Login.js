@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Container, Heading, TextField, Button, Text, Flex, AlertDialog } from '@radix-ui/themes';
+import { Container, Heading, Text, TextField, Button, Flex, Card, Box } from '@radix-ui/themes';
+import { EnvelopeClosedIcon, LockClosedIcon } from '@radix-ui/react-icons';
 import { login } from '../services/api';
 
 const Login = () => {
@@ -11,55 +12,64 @@ const Login = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setError('');
     try {
       const response = await login(email, password);
       localStorage.setItem('token', response.data.token);
       localStorage.setItem('userType', response.data.userType);
-      navigate('/comparison');
+      
+      if (response.data.userType === 'admin') {
+        navigate('/admin');
+      } else {
+        navigate('/comparison');
+      }
     } catch (error) {
+      console.error('Error logging in:', error);
       setError('Login failed. Please check your credentials.');
     }
   };
 
   return (
-    <Container size="2" py="9">
-      <Heading size="8" mb="6">Login</Heading>
-      <form onSubmit={handleSubmit}>
-        <Flex direction="column" gap="3">
-          <TextField.Root>
-            <TextField.Input 
-              type="email" 
-              placeholder="Email" 
-              value={email} 
-              onChange={(e) => setEmail(e.target.value)} 
-              required 
-            />
-          </TextField.Root>
-          <TextField.Root>
-            <TextField.Input 
-              type="password" 
-              placeholder="Password" 
-              value={password} 
-              onChange={(e) => setPassword(e.target.value)} 
-              required 
-            />
-          </TextField.Root>
-          <Button type="submit">Login</Button>
+    <Container size="1">
+      <Card>
+        <Flex direction="column" gap="4" style={{ maxWidth: 400, margin: '0 auto' }}>
+          <Heading size="6" align="center">Login</Heading>
+          <form onSubmit={handleSubmit}>
+            <Flex direction="column" gap="3">
+              <TextField.Root>
+                <TextField.Slot>
+                  <EnvelopeClosedIcon height="16" width="16" />
+                </TextField.Slot>
+                <TextField.Input 
+                  type="email"
+                  placeholder="Email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  required
+                />
+              </TextField.Root>
+              <TextField.Root>
+                <TextField.Slot>
+                  <LockClosedIcon height="16" width="16" />
+                </TextField.Slot>
+                <TextField.Input 
+                  type="password"
+                  placeholder="Password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                />
+              </TextField.Root>
+              <Button type="submit">Login</Button>
+            </Flex>
+          </form>
+          {error && (
+            <Text color="red" size="2">
+              {error}
+            </Text>
+          )}
         </Flex>
-      </form>
-      <AlertDialog.Root open={!!error}>
-        <AlertDialog.Content>
-          <AlertDialog.Title>Error</AlertDialog.Title>
-          <AlertDialog.Description>{error}</AlertDialog.Description>
-          <Flex gap="3" mt="4" justify="end">
-            <AlertDialog.Cancel>
-              <Button variant="soft" color="gray" onClick={() => setError('')}>
-                Close
-              </Button>
-            </AlertDialog.Cancel>
-          </Flex>
-        </AlertDialog.Content>
-      </AlertDialog.Root>
+      </Card>
     </Container>
   );
 };
