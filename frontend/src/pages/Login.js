@@ -1,11 +1,11 @@
-// frontend/src/pages/Login.js
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Container, Heading, Text, TextField, Button, Flex, Card, Box } from '@radix-ui/themes';
+import { Container, Heading, Text, TextField, Button, Flex, Card } from '@radix-ui/themes';
 import { EnvelopeClosedIcon, LockClosedIcon } from '@radix-ui/react-icons';
 import { login } from '../services/api';
+import { jwtDecode } from 'jwt-decode';
 
-const Login = () => {
+const Login = ({ setUser }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -16,13 +16,23 @@ const Login = () => {
     setError('');
     try {
       const response = await login(email, password);
-      localStorage.setItem('token', response.data.token);
-      localStorage.setItem('userType', response.data.userType);
+      const { token } = response.data;
+      localStorage.setItem('token', token);
       
-      if (response.data.userType === 'admin') {
+      const decodedToken = jwtDecode(token);
+      setUser({
+        token,
+        id: decodedToken.id,
+        type: decodedToken.type,
+        isAdmin: decodedToken.isAdmin,
+        username: decodedToken.username,
+        email: decodedToken.email
+      });
+      
+      if (decodedToken.isAdmin) {
         navigate('/admin');
       } else {
-        navigate('/comparison');
+        navigate('/');
       }
     } catch (error) {
       console.error('Error logging in:', error);

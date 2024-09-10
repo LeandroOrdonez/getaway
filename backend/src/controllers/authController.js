@@ -27,7 +27,7 @@ exports.login = async (req, res) => {
       return res.status(401).json({ error: 'Invalid credentials' });
     }
     const token = jwt.sign(
-      { id: user.id, type: user.isAdmin ? 'admin' : 'registered_user', isAdmin: user.isAdmin },
+      { id: user.id, type: user.isAdmin ? 'admin' : 'registered_user', isAdmin: user.isAdmin, username: user.username, email: user.email },
       process.env.JWT_SECRET,
       { expiresIn: '1d' }
     );
@@ -45,7 +45,7 @@ exports.autoLogin = async (req, res) => {
       return res.status(404).json({ error: 'User not found' });
     }
     const token = jwt.sign(
-      { id: user.id, type: 'registered_user', isAdmin: user.isAdmin },
+      { id: user.id, type: 'registered_user', isAdmin: user.isAdmin, username: user.username, email: user.email  },
       process.env.JWT_SECRET,
       { expiresIn: '1d' }
     );

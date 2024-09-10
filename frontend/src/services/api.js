@@ -17,13 +17,10 @@ api.interceptors.request.use((config) => {
   return Promise.reject(error);
 });
 
-// Remove login, register, and startGuestSession functions
-
+export const login = (email, password) => api.post('/auth/login', { email, password });
 export const autoLogin = (uniqueUrl) => api.get(`/auth/auto-login/${uniqueUrl}`);
 export const registerUser = (userData) => api.post('/auth/register', userData);
 export const listUsers = () => api.get('/users/list');
-
-// Keep other existing functions
 
 export const getRandomPair = () => api.get('/comparisons/random-pair');
 export const submitComparison = (winnerAccommodationId, loserAccommodationId) => 

@@ -1,8 +1,8 @@
 // frontend/src/pages/Comparison.js
 import React, { useState, useEffect, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Container, Heading, Text, Card, Flex, Button, Badge, AspectRatio, Grid, Box } from '@radix-ui/themes';
-import { StarFilledIcon, ExternalLinkIcon } from '@radix-ui/react-icons';
+import { Container, Heading, Text, Card, Flex, Button, Badge, AspectRatio, Grid, Box, Separator } from '@radix-ui/themes';
+import { StarFilledIcon, ExternalLinkIcon, HomeIcon, PersonIcon, PaperPlaneIcon } from '@radix-ui/react-icons';
 import * as ProgressPrimitive from '@radix-ui/react-progress';
 import { styled } from '@stitches/react';
 import { getComparisonCount, getRandomPair, submitComparison, calculateDrivingDistance } from '../services/api';
@@ -121,12 +121,16 @@ const Comparison = () => {
     return <Text>Loading...</Text>;
   }
 
+  const truncate = (str, n) => {
+    return str.length > n ? str.substr(0, n-1) + '...' : str;
+  };
+
   return (
     <Container size="3">
       <Heading size="6" mb="4">Which accommodation do you prefer?</Heading>
       <Text size="3" mb="4">Comparison {comparisonCount + 1} of {maxComparisons}</Text>
       <Progress value={(comparisonCount / maxComparisons) * 100} />
-      <Box mb="4" /> {/* Added for spacing */}
+      <Box mb="4" />
       <Grid columns="2" gap="4">
         {accommodations.map((accommodation) => (
           <Card key={accommodation.id}>
@@ -141,25 +145,43 @@ const Comparison = () => {
                 }}
               />
             </AspectRatio>
-            <Box p="3">
-              <Heading size="4" mb="2">{accommodation.name}</Heading>
-              <Text size="2" color="gray" mb="2">Location: {accommodation.location}</Text>
-              <Text size="3" mb="2">Price per night: ${accommodation.pricePerNight}</Text>
-              <Text size="3" mb="2">Number of rooms: {accommodation.numRooms}</Text>
-              {accommodation.drivingDistance && (
-                <Text size="2" color="gray" mb="2">
-                  Driving distance: {accommodation.drivingDistance} ({accommodation.drivingDuration})
+            <Box p="4">
+              <Box style={{ height: '3em', overflow: 'hidden' }} mb="2">
+                <Heading size="4">{truncate(accommodation.name, 50)}</Heading>
+              </Box>
+              <Flex align="center" mb="2" style={{ height: '2.5em', overflow: 'hidden' }}>
+                <HomeIcon />
+                <Text size="2" ml="1" style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                  {truncate(accommodation.location, 60)}
                 </Text>
-              )}
-              <Flex align="center" gap="1" mb="2">
+              </Flex>
+              <Grid columns="2" gap="2" mb="2">
+                <Flex align="center">
+                  <Text weight="bold">€{accommodation.pricePerNight}</Text>
+                  <Text size="1" ml="1">per night</Text>
+                </Flex>
+                <Flex align="center">
+                  <PersonIcon />
+                  <Text size="2" ml="1">{accommodation.numRooms} rooms</Text>
+                </Flex>
+              </Grid>
+              <Flex align="center" mb="2">
+                <PaperPlaneIcon />
+                <Text size="2" ml="1">
+                  {accommodation.drivingDistance} ({accommodation.drivingDuration})
+                </Text>
+              </Flex>
+              <Flex align="center" mb="2">
                 <StarFilledIcon />
-                <Text size="2">{accommodation.rating}</Text>
+                <Text size="2" ml="1">{accommodation.rating}</Text>
               </Flex>
-              <Flex wrap="wrap" gap="1" mb="3">
-                {accommodation.facilities.map((facility, index) => (
-                  <Badge key={index} size="1">{facility}</Badge>
-                ))}
-              </Flex>
+              <Box style={{ height: '3em', overflow: 'hidden' }} mb="3">
+                <Flex wrap="wrap" gap="1">
+                  {accommodation.facilities.map((facility, index) => (
+                    <Badge key={index} size="1">{facility}</Badge>
+                  ))}
+                </Flex>
+              </Box>
               <Flex direction="column" gap="2">
                 <Button 
                   onClick={() => handleChoice(accommodation.id, accommodations.find(a => a.id !== accommodation.id).id)}

@@ -5,9 +5,10 @@ import { Container, Heading, Text, Button, Flex, Card, Box } from '@radix-ui/the
 import { GlobeIcon } from '@radix-ui/react-icons';
 import LocationInput from '../components/LocationInput';
 
-const Home = () => {
+const Home = ({ user }) => {
   const navigate = useNavigate();
-  const isLoggedIn = !!localStorage.getItem('token');
+  const isLoggedIn = !!user;
+  console.log("user", user);
 
   const handleStartComparison = () => {
     navigate('/comparison');
@@ -17,7 +18,11 @@ const Home = () => {
     <Container size="3">
       <Flex direction="column" gap="6" my="6">
         <Box>
-          <Heading size="9" align="center" mb="2">Welcome to Getaway Match</Heading>
+          <Heading size="9" align="center" mb="2">
+            {isLoggedIn 
+              ? `Welcome to Getaway Match, ${user.username}!`
+              : 'Welcome to Getaway Match'}
+          </Heading>
           <Text size="5" align="center" color="gray">
             Find your perfect accommodation by comparing options side by side.
           </Text>
@@ -31,7 +36,7 @@ const Home = () => {
         {isLoggedIn ? (
           <Card>
             <Flex direction="column" align="center" gap="2">
-              <Heading size="4">Ready to start?</Heading>
+              <Heading size="4">Ready to start, {user.username}?</Heading>
               <Text size="2" align="center" mb="4">
                 Start comparing accommodations to find your perfect match.
               </Text>
