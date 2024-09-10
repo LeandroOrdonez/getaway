@@ -1,3 +1,4 @@
+// frontend/src/services/api.js
 import axios from 'axios';
 
 const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:3000/api';
@@ -16,9 +17,14 @@ api.interceptors.request.use((config) => {
   return Promise.reject(error);
 });
 
-export const login = (email, password) => api.post('/auth/login', { email, password });
-export const register = (username, email, password) => api.post('/auth/register', { username, email, password });
-export const startGuestSession = (name) => api.post('/auth/guest', { name });
+// Remove login, register, and startGuestSession functions
+
+export const autoLogin = (uniqueUrl) => api.get(`/auth/auto-login/${uniqueUrl}`);
+export const registerUser = (userData) => api.post('/auth/register', userData);
+export const listUsers = () => api.get('/users/list');
+
+// Keep other existing functions
+
 export const getRandomPair = () => api.get('/comparisons/random-pair');
 export const submitComparison = (winnerAccommodationId, loserAccommodationId) => 
   api.post('/comparisons/submit', { winnerAccommodationId, loserAccommodationId });
@@ -28,8 +34,6 @@ export const getUserComparisons = () => api.get('/users/comparisons');
 export const getAccommodationDetails = (id) => api.get(`/accommodations/${id}`);
 export const searchRankings = (searchTerm) => api.get(`/comparisons/rankings?search=${searchTerm}`);
 export const createAccommodation = (data) => api.post('/accommodations', data);
-// export const calculateDrivingDistance = (origin, destination) => 
-//   api.post('/accommodations/calculate-distance', { origin, destination });
 
 export const getUserSettings = () => api.get('/users/settings');
 export const updateUserSettings = (settings) => api.put('/users/settings', settings);

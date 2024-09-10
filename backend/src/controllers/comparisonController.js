@@ -1,3 +1,4 @@
+// backend/src/controllers/comparisonController.js
 const Accommodation = require('../models/accommodation');
 const Comparison = require('../models/comparison');
 const sequelize = require('../config/database');

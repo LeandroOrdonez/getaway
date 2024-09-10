@@ -1,3 +1,4 @@
+// frontend/src/components/LocationInput.js
 import React, { useState, useEffect, useContext } from 'react';
 import { TextField, Button, Flex, Text, ScrollArea } from '@radix-ui/themes';
 import { MagnifyingGlassIcon, GlobeIcon } from '@radix-ui/react-icons';

@@ -1,3 +1,4 @@
+// backend/src/models/comparison.js
 const { DataTypes } = require('sequelize');
 const sequelize = require('../config/database');
 const Accommodation = require('./accommodation');

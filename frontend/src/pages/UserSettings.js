@@ -1,3 +1,4 @@
+// frontend/src/pages/UserSettings.js
 import React, { useState, useEffect } from 'react';
 import { Container, Heading, Text, TextField, Button, Flex, Card, Box } from '@radix-ui/themes';
 import { PersonIcon, EnvelopeClosedIcon, CheckIcon } from '@radix-ui/react-icons';

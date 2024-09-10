@@ -1,3 +1,4 @@
+// frontend/src/pages/UserProfile.js
 import React, { useState, useEffect } from 'react';
 import { Container, Heading, Text, Card, Flex, Avatar, Table, ScrollArea } from '@radix-ui/themes';
 import { PersonIcon } from '@radix-ui/react-icons';

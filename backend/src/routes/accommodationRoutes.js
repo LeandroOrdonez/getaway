@@ -1,3 +1,4 @@
+// backend/src/routes/accommodationRoutes.js
 const express = require('express');
 const router = express.Router();
 const accommodationController = require('../controllers/accommodationController');

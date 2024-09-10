@@ -1,3 +1,4 @@
+// frontend/src/pages/Register.js
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { Container, Heading, Text, TextField, Button, Flex, Card, Box } from '@radix-ui/themes';

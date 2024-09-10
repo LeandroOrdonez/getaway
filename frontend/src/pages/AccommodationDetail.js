@@ -1,3 +1,4 @@
+// frontend/src/pages/AccommodationDetail.js
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { Container, Heading, Text, Card, Flex, Button, Badge, AspectRatio, Inset } from '@radix-ui/themes';

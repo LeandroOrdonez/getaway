@@ -1,3 +1,4 @@
+//backend/src/controllers/userController.js
 const User = require('../models/user');
 const Comparison = require('../models/comparison');
 const Accommodation = require('../models/accommodation');
@@ -34,7 +35,7 @@ exports.updateUserSettings = async (req, res) => {
   }
 };
 
-exports.getUserComparisons = async (req, res) => { // Add this method
+exports.getUserComparisons = async (req, res) => {
   try {
     const comparisons = await Comparison.findAll({
       where: { userId: req.user.id },
@@ -44,6 +45,18 @@ exports.getUserComparisons = async (req, res) => { // Add this method
       ]
     });
     res.json(comparisons);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+exports.listRegisteredUsers = async (req, res) => {
+  try {
+    const users = await User.findAll({
+      where: { isAdmin: false },
+      attributes: ['id', 'username', 'email', 'uniqueUrl']
+    });
+    res.json(users);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }

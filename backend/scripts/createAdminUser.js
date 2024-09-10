@@ -1,3 +1,4 @@
+// backend/scripts/createAdminUser.js
 require('dotenv').config();
 const { v4: uuidv4 } = require('uuid');
 const { Sequelize } = require('sequelize');

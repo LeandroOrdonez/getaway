@@ -1,3 +1,4 @@
+// backend/src/controllers/geocodingController.js
 const mapboxService = require('../services/mapboxService');
 
 exports.forwardGeocode = async (req, res) => {

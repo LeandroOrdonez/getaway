@@ -1,90 +1,102 @@
-import React from 'react';
-import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
+// frontend/src/App.js
+import React, { useState, useEffect } from 'react';
+import { BrowserRouter as Router, Route, Routes, Navigate, useParams } from 'react-router-dom';
 import { Theme } from '@radix-ui/themes';
 import '@radix-ui/themes/styles.css';
 import { LocationProvider } from './contexts/LocationContext';
-
+import { jwtDecode } from 'jwt-decode'; // Corrected import
 import Header from './components/Header';
 import Footer from './components/Footer';
 import Home from './pages/Home';
 import Comparison from './pages/Comparison';
-import Login from './pages/Login';
-import Register from './pages/Register';
-import GuestSession from './pages/GuestSession';
 import Rankings from './pages/Rankings';
-import UserProfile from './pages/UserProfile';
-import ProtectedRoute from './components/ProtectedRoute';
-import AccommodationDetail from './pages/AccommodationDetail';
-import UserSettings from './pages/UserSettings';
 import AdminInterface from './pages/AdminInterface';
+import AccommodationDetail from './pages/AccommodationDetail';
+import UserProfile from './pages/UserProfile';
+import { autoLogin } from './services/api';
 
-const ProtectedAdminRoute = ({ children }) => {
-  const isAuthenticated = !!localStorage.getItem('token');
-  const isAdmin = localStorage.getItem('userType') === 'admin';
+const App = () => {
+  const [user, setUser] = useState(null);
 
-  if (!isAuthenticated || !isAdmin) {
-    return <Navigate to="/login" replace />;
-  }
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (token) {
+      try {
+        const decodedToken = jwtDecode(token); // Use jwtDecode instead of jwt_decode
+        const currentTime = Date.now() / 1000; // Convert to seconds
+        if (decodedToken.exp > currentTime) {
+          // Token is still valid
+          setUser({
+            token,
+            id: decodedToken.id,
+            type: decodedToken.type,
+            isAdmin: decodedToken.isAdmin
+          });
+        } else {
+          // Token has expired
+          localStorage.removeItem('token');
+        }
+      } catch (error) {
+        console.error('Error decoding token:', error);
+        localStorage.removeItem('token');
+      }
+    }
+  }, []);
 
-  return children;
-};
+  const handleAutoLogin = async (uniqueUrl) => {
+    try {
+      const response = await autoLogin(uniqueUrl);
+      localStorage.setItem('token', response.data.token);
+      const decodedToken = jwtDecode(response.data.token); // Use jwtDecode here as well
+      setUser({
+        token: response.data.token,
+        id: decodedToken.id,
+        type: decodedToken.type,
+        isAdmin: decodedToken.isAdmin
+      });
+    } catch (error) {
+      console.error('Auto-login failed:', error);
+    }
+  };
 
-const ProtectedUserRoute = ({ children }) => {
-  const isAuthenticated = !!localStorage.getItem('token');
-  const isAdmin = localStorage.getItem('userType') === 'admin';
-
-  if (!isAuthenticated) {
-    return <Navigate to="/login" replace />;
-  }
-
-  if (isAdmin) {
-    return <Navigate to="/admin" replace />;
-  }
-
-  return children;
-};
-
-function App() {
   return (
-    <Theme appearance="light" accentColor="blue" grayColor="slate" radius="medium" scaling="100%">
-      <LocationProvider>
-        <Router>
-          <div className="App">
-            <Header />
-            <Routes>
-              <Route path="/" element={<Home />} />
-              <Route path="/comparison" element={
-                <ProtectedUserRoute>
-                  <Comparison />
-                </ProtectedUserRoute>
-              } />
-              <Route path="/login" element={<Login />} />
-              <Route path="/register" element={<Register />} />
-              <Route path="/guest" element={<GuestSession />} />
-              <Route path="/rankings" element={<Rankings />} />
-              <Route path="/profile" element={
-                <ProtectedRoute>
-                  <UserProfile />
-                </ProtectedRoute>
-              } />
-              <Route path="/accommodation/:id" element={<AccommodationDetail />} />
-              <Route path="/settings" element={
-                <ProtectedRoute>
-                  <UserSettings />
-                </ProtectedRoute>
-              } />
-              <Route path="/admin" element={
-                <ProtectedAdminRoute>
-                  <AdminInterface />
-                </ProtectedAdminRoute>
-              } />
-            </Routes>
-            <Footer />
-          </div>
-        </Router>
-      </LocationProvider>
-    </Theme>
+    <Router>
+      <Theme appearance="light" accentColor="blue" grayColor="slate" radius="medium" scaling="100%">
+        <LocationProvider>
+          <Header user={user} setUser={setUser} />
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/login/:uniqueUrl" element={<AutoLogin handleAutoLogin={handleAutoLogin} />} />
+            <Route 
+              path="/comparison" 
+              element={user ? <Comparison /> : <Navigate to="/" replace />} 
+            />
+            <Route path="/rankings" element={<Rankings />} />
+            <Route 
+              path="/admin" 
+              element={user && user.isAdmin ? <AdminInterface /> : <Navigate to="/" replace />} 
+            />
+            <Route path="/accommodation/:id" element={<AccommodationDetail />} />
+            <Route 
+              path="/profile" 
+              element={user ? <UserProfile /> : <Navigate to="/" replace />} 
+            />
+          </Routes>
+          <Footer />
+        </LocationProvider>
+      </Theme>
+    </Router>
   );
-}
+};
+
+const AutoLogin = ({ handleAutoLogin }) => {
+  const { uniqueUrl } = useParams();
+  
+  useEffect(() => {
+    handleAutoLogin(uniqueUrl);
+  }, [uniqueUrl, handleAutoLogin]);
+
+  return <div>Logging in...</div>;
+};
 
 export default App;

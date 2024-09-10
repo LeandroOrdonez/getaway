@@ -1,3 +1,4 @@
+// frontend/src/pages/Rankings.js
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Container, Heading, Text, TextField, Button, Flex, Table, ScrollArea, Card } from '@radix-ui/themes';

@@ -1,3 +1,4 @@
+// frontend/src/pages/Comparison.js
 import React, { useState, useEffect, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Container, Heading, Text, Card, Flex, Button, Badge, AspectRatio, Grid, Box } from '@radix-ui/themes';

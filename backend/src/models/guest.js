@@ -1,3 +1,4 @@
+// backend/src/models/guest.js
 const { DataTypes } = require('sequelize');
 const sequelize = require('../config/database');
 

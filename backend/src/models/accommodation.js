@@ -1,3 +1,4 @@
+// backend/src/models/accommodation.js
 const { DataTypes } = require('sequelize');
 const sequelize = require('../config/database');
 

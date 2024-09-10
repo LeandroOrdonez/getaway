@@ -1,3 +1,4 @@
+// frontend/src/components/ErrorAlert.js
 import React from 'react';
 import { AlertDialog, Flex, Button, Text } from '@radix-ui/themes';
 import { ExclamationTriangleIcon } from '@radix-ui/react-icons';

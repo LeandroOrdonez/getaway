@@ -1,6 +1,8 @@
+// backend/src/models/user.js
 const { DataTypes } = require('sequelize');
 const sequelize = require('../config/database');
 const bcrypt = require('bcryptjs');
+const crypto = require('crypto');
 
 const User = sequelize.define('User', {
   id: {
@@ -29,11 +31,16 @@ const User = sequelize.define('User', {
     type: DataTypes.BOOLEAN,
     defaultValue: false,
   },
+  uniqueUrl: {
+    type: DataTypes.STRING,
+    unique: true,
+  },
 });
 
 User.beforeCreate(async (user) => {
   const salt = await bcrypt.genSalt(10);
   user.password = await bcrypt.hash(user.password, salt);
+  user.uniqueUrl = crypto.randomBytes(32).toString('hex');
 });
 
 User.prototype.comparePassword = function(candidatePassword) {

@@ -1,3 +1,4 @@
+// backend/config/config.json
 {
   "development": {
     "username": "postgres",

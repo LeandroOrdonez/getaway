@@ -1,3 +1,4 @@
+// backend/src/controllers/accommodationController.js
 const Accommodation = require('../models/accommodation');
 
 exports.createAccommodation = async (req, res) => {

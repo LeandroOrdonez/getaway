@@ -1,15 +1,14 @@
+// frontend/src/components/Header.js
 import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Flex, Button, Text } from '@radix-ui/themes';
 
-const Header = () => {
-  const isLoggedIn = !!localStorage.getItem('token');
-  const isAdmin = localStorage.getItem('userType') === 'admin';
+const Header = ({ user, setUser }) => {
   const navigate = useNavigate();
 
   const handleLogout = () => {
     localStorage.removeItem('token');
-    localStorage.removeItem('userType');
+    setUser(null);
     navigate('/');
   };
 
@@ -21,17 +20,17 @@ const Header = () => {
           <Link to="/">Home</Link>
         </Button>
         <Button variant="ghost" asChild>
-          <Link to="/comparison">Compare</Link>
-        </Button>
-        <Button variant="ghost" asChild>
           <Link to="/rankings">Rankings</Link>
         </Button>
-        {isLoggedIn ? (
+        {user ? (
           <>
+            <Button variant="ghost" asChild>
+              <Link to="/comparison">Compare</Link>
+            </Button>
             <Button variant="ghost" asChild>
               <Link to="/profile">Profile</Link>
             </Button>
-            {isAdmin && (
+            {user.role === 'admin' && (
               <Button variant="ghost" asChild>
                 <Link to="/admin">Admin</Link>
               </Button>
@@ -39,14 +38,7 @@ const Header = () => {
             <Button variant="soft" onClick={handleLogout}>Logout</Button>
           </>
         ) : (
-          <>
-            <Button variant="soft" asChild>
-              <Link to="/login">Login</Link>
-            </Button>
-            <Button variant="soft" asChild>
-              <Link to="/register">Register</Link>
-            </Button>
-          </>
+          <Text size="2">Please use your unique URL to log in</Text>
         )}
       </Flex>
     </Flex>

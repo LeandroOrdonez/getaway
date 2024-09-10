@@ -1,3 +1,4 @@
+// frontend/src/pages/GuestSession.js
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Container, Heading, Text, TextField, Button, Flex, Card } from '@radix-ui/themes';
