@@ -2,14 +2,13 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Container, Heading, Text, Card, Flex, Button, Badge, AspectRatio, Grid, Box, Separator } from '@radix-ui/themes';
-import { StarFilledIcon, ExternalLinkIcon, HomeIcon, PersonIcon, PaperPlaneIcon } from '@radix-ui/react-icons';
+import { Star, ExternalLink, Bed, Car, MapPin } from 'lucide-react';
 import * as ProgressPrimitive from '@radix-ui/react-progress';
 import { styled } from '@stitches/react';
 import { getComparisonCount, getRandomPair, submitComparison, calculateDrivingDistance } from '../services/api';
 import { LocationContext } from '../contexts/LocationContext';
 import ResultsCalculation from '../components/ResultsCalculation';
 
-// Styled Progress component
 const StyledProgress = styled(ProgressPrimitive.Root, {
   position: 'relative',
   overflow: 'hidden',
@@ -150,7 +149,7 @@ const Comparison = () => {
                 <Heading size="4">{truncate(accommodation.name, 50)}</Heading>
               </Box>
               <Flex align="center" mb="2" style={{ height: '2.5em', overflow: 'hidden' }}>
-                <HomeIcon />
+                <MapPin size={16} />
                 <Text size="2" ml="1" style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                   {truncate(accommodation.location, 60)}
                 </Text>
@@ -161,18 +160,18 @@ const Comparison = () => {
                   <Text size="1" ml="1">per night</Text>
                 </Flex>
                 <Flex align="center">
-                  <PersonIcon />
+                  <Bed size={16} />
                   <Text size="2" ml="1">{accommodation.numRooms} rooms</Text>
                 </Flex>
               </Grid>
               <Flex align="center" mb="2">
-                <PaperPlaneIcon />
+                <Car size={16} />
                 <Text size="2" ml="1">
                   {accommodation.drivingDistance} ({accommodation.drivingDuration})
                 </Text>
               </Flex>
               <Flex align="center" mb="2">
-                <StarFilledIcon />
+                <Star size={16} />
                 <Text size="2" ml="1">{accommodation.rating}</Text>
               </Flex>
               <Box style={{ height: '3em', overflow: 'hidden' }} mb="3">
@@ -191,7 +190,7 @@ const Comparison = () => {
                 <Button variant="outline" asChild>
                   <a href={accommodation.originalListingUrl} target="_blank" rel="noopener noreferrer">
                     View Original Listing
-                    <ExternalLinkIcon />
+                    <ExternalLink size={16} style={{ marginLeft: '4px' }} />
                   </a>
                 </Button>
               </Flex>

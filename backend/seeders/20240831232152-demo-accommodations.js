@@ -24,9 +24,9 @@ module.exports = {
         eloScore: 1500, // Starting ELO score
         facilities: JSON.stringify(faker.random.arrayElements(facilities, faker.datatype.number({ min: 1, max: 5 }))),
         imageUrls: JSON.stringify([
-          faker.image.imageUrl(),
-          faker.image.imageUrl(),
-          faker.image.imageUrl()
+          "https://g-vwmekr3y0dp.vusercontent.net/placeholder.svg?height=400&width=300",
+          "https://g-vwmekr3y0dp.vusercontent.net/placeholder.svg?height=400&width=300",
+          "https://g-vwmekr3y0dp.vusercontent.net/placeholder.svg?height=400&width=300"
         ]),
         originalListingUrl: faker.internet.url(),
         createdAt: new Date(),

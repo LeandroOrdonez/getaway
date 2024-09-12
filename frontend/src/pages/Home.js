@@ -2,7 +2,7 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Container, Heading, Text, Button, Flex, Card, Box } from '@radix-ui/themes';
-import { GlobeIcon } from '@radix-ui/react-icons';
+import { Globe } from 'lucide-react';
 import LocationInput from '../components/LocationInput';
 
 const Home = ({ user }) => {
@@ -47,7 +47,7 @@ const Home = ({ user }) => {
           <Card>
             <Flex direction="column" align="center" gap="2">
               <Box mb="2">
-                <GlobeIcon height="32" width="32" />
+                <Globe size={32} />
               </Box>
               <Heading size="4">Welcome to Getaway Match</Heading>
               <Text size="2" align="center" mb="4">
