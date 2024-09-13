@@ -8,6 +8,7 @@ import { styled } from '@stitches/react';
 import { getComparisonCount, getRandomPair, submitComparison, calculateDrivingDistance } from '../services/api';
 import { LocationContext } from '../contexts/LocationContext';
 import ResultsCalculation from '../components/ResultsCalculation';
+import Carousel from '../components/Carousel';
 
 const StyledProgress = styled(ProgressPrimitive.Root, {
   position: 'relative',
@@ -39,6 +40,8 @@ const Comparison = () => {
   const [comparisonCount, setComparisonCount] = useState(0);
   const [maxComparisons, setMaxComparisons] = useState(10);
   const [isCalculatingResults, setIsCalculatingResults] = useState(false);
+  const [showCarousel, setShowCarousel] = useState([false, false]);
+  const [currentImageIndex, setCurrentImageIndex] = useState([0, 0]);
   const navigate = useNavigate();
   const { location } = useContext(LocationContext);
 
@@ -103,6 +106,45 @@ const Comparison = () => {
     }
   };
 
+  const handleImageClick = (accommodationIndex, imageIndex) => {
+    setCurrentImageIndex(prev => {
+      const newIndexes = [...prev];
+      newIndexes[accommodationIndex] = imageIndex;
+      return newIndexes;
+    });
+    setShowCarousel(prev => {
+      const newShow = [...prev];
+      newShow[accommodationIndex] = true;
+      return newShow;
+    });
+  };
+
+  const handleCloseCarousel = (accommodationIndex) => {
+    setShowCarousel(prev => {
+      const newShow = [...prev];
+      newShow[accommodationIndex] = false;
+      return newShow;
+    });
+  };
+
+  const handlePrevImage = (accommodationIndex) => {
+    setCurrentImageIndex(prev => {
+      const newIndexes = [...prev];
+      newIndexes[accommodationIndex] = newIndexes[accommodationIndex] === 0 
+        ? accommodations[accommodationIndex].imageUrls.length - 1 
+        : newIndexes[accommodationIndex] - 1;
+      return newIndexes;
+    });
+  };
+
+  const handleNextImage = (accommodationIndex) => {
+    setCurrentImageIndex(prev => {
+      const newIndexes = [...prev];
+      newIndexes[accommodationIndex] = (newIndexes[accommodationIndex] + 1) % accommodations[accommodationIndex].imageUrls.length;
+      return newIndexes;
+    });
+  };
+
   if (comparisonCount >= maxComparisons) {
     return (
       <Container size="2">
@@ -131,17 +173,19 @@ const Comparison = () => {
       <Progress value={(comparisonCount / maxComparisons) * 100} />
       <Box mb="4" />
       <Grid columns="2" gap="4">
-        {accommodations.map((accommodation) => (
+        {accommodations.map((accommodation, index) => (
           <Card key={accommodation.id}>
             <AspectRatio ratio={16/9}>
               <img
                 src={accommodation.imageUrls[0]}
-                alt={accommodation.name}
+                alt={accommodation.name || 'Accommodation'}
                 style={{
                   objectFit: 'cover',
                   width: '100%',
                   height: '100%',
+                  cursor: 'pointer',
                 }}
+                onClick={() => handleImageClick(index, 0)}
               />
             </AspectRatio>
             <Box p="4">
@@ -164,20 +208,22 @@ const Comparison = () => {
                   <Text size="2" ml="1">{accommodation.numRooms} rooms</Text>
                 </Flex>
               </Grid>
-              <Flex align="center" mb="2">
-                <Car size={16} />
-                <Text size="2" ml="1">
-                  {accommodation.drivingDistance} ({accommodation.drivingDuration})
-                </Text>
-              </Flex>
+              {accommodation.drivingDistance && (
+                <Flex align="center" mb="2">
+                  <Car size={16} />
+                  <Text size="2" ml="1">
+                    {accommodation.drivingDistance} ({accommodation.drivingDuration})
+                  </Text>
+                </Flex>
+              )}
               <Flex align="center" mb="2">
                 <Star size={16} />
                 <Text size="2" ml="1">{accommodation.rating}</Text>
               </Flex>
               <Box style={{ height: '3em', overflow: 'hidden' }} mb="3">
                 <Flex wrap="wrap" gap="1">
-                  {accommodation.facilities.map((facility, index) => (
-                    <Badge key={index} size="1">{facility}</Badge>
+                  {accommodation.facilities.map((facility, facilityIndex) => (
+                    <Badge key={facilityIndex} size="1">{facility}</Badge>
                   ))}
                 </Flex>
               </Box>
@@ -195,6 +241,15 @@ const Comparison = () => {
                 </Button>
               </Flex>
             </Box>
+            {showCarousel[index] && (
+              <Carousel
+                images={accommodation.imageUrls}
+                currentIndex={currentImageIndex[index]}
+                onClose={() => handleCloseCarousel(index)}
+                onPrev={() => handlePrevImage(index)}
+                onNext={() => handleNextImage(index)}
+              />
+            )}
           </Card>
         ))}
       </Grid>

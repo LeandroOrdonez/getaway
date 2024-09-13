@@ -3,7 +3,7 @@ import React from 'react';
 import { Dialog, Flex, Button, Text } from '@radix-ui/themes';
 import { ChevronLeft, ChevronRight, X } from 'lucide-react';
 
-const Carousel = ({ images, currentIndex, onClose, onPrev, onNext }) => (
+const Carousel = ({ images = [], currentIndex, onClose, onPrev, onNext }) => (
   <Dialog.Root open={true} onOpenChange={onClose}>
     <Dialog.Content style={{ 
       maxWidth: '90vw', 
@@ -12,7 +12,7 @@ const Carousel = ({ images, currentIndex, onClose, onPrev, onNext }) => (
       padding: '20px',
       display: 'flex',
       flexDirection: 'column',
-      overflow: 'hidden' // Prevent any overflow
+      overflow: 'hidden'
     }}>
       <Flex justify="between" align="center" mb="2">
         <Text size="5">Image Gallery</Text>
