@@ -4,39 +4,7 @@ import { useParams } from 'react-router-dom';
 import { Container, Heading, Text, Card, Flex, Button, Badge, AspectRatio, Grid, Box, Separator, Dialog } from '@radix-ui/themes';
 import { Star, DollarSign, Bed, Car, ExternalLink, MapPin, ChevronLeft, ChevronRight, X } from 'lucide-react';
 import { getAccommodationDetails } from '../services/api';
-
-const Carousel = ({ images, currentIndex, onClose, onPrev, onNext }) => (
-  <Dialog.Root open={true} onOpenChange={onClose}>
-    <Dialog.Content style={{ maxWidth: '90vw', height: '90vh' }}>
-      <Flex direction="column" style={{ height: '100%' }}>
-        <Flex justify="between" align="center" mb="4">
-          <Text size="5">Image Gallery</Text>
-          <Dialog.Close>
-            <Button variant="ghost" size="1">
-              <X size={24} />
-            </Button>
-          </Dialog.Close>
-        </Flex>
-        <Flex grow="1" align="center" justify="center">
-          <Button variant="ghost" size="3" onClick={onPrev}>
-            <ChevronLeft size={24} />
-          </Button>
-          <Box style={{ maxHeight: '100%', maxWidth: 'calc(100% - 120px)' }}>
-            <img 
-              src={images[currentIndex]} 
-              alt={`Accommodation ${currentIndex + 1}`}
-              style={{ maxHeight: '100%', maxWidth: '100%', objectFit: 'contain' }}
-            />
-          </Box>
-          <Button variant="ghost" size="3" onClick={onNext}>
-            <ChevronRight size={24} />
-          </Button>
-        </Flex>
-        <Text align="center" mt="4">{currentIndex + 1} / {images.length}</Text>
-      </Flex>
-    </Dialog.Content>
-  </Dialog.Root>
-);
+import Carousel from '../components/Carousel';
 
 const AccommodationDetail = () => {
   const [accommodation, setAccommodation] = useState(null);
@@ -162,21 +130,29 @@ const AccommodationDetail = () => {
   );
 
   return (
-    <Container size="4" style={{ maxWidth: '1200px' }}>
-      <Card size="3">
+    <Flex 
+      justify="center" 
+      align="center" 
+      style={{ 
+        minHeight: '100vh',
+        padding: '20px',
+      }}
+    >
+      <Card 
+        size="3" 
+        style={{ 
+          width: '100%',
+          maxWidth: '1200px',
+        }}
+      >
         <Flex
           direction={{ initial: 'column', md: 'row' }}
           gap="4"
-          css={{
-            '@media (min-width: 768px)': {
-              flexDirection: 'row',
-            },
-          }}
         >
-          <Box style={{ flex: '1 1 50%' }}>
+          <Box style={{ flex: '3' }}>
             <ImageGallery />
           </Box>
-          <Box style={{ flex: '1 1 50%' }}>
+          <Box style={{ flex: '2' }}>
             <AccommodationInfo />
           </Box>
         </Flex>
@@ -190,7 +166,7 @@ const AccommodationDetail = () => {
           onNext={handleNextImage}
         />
       )}
-    </Container>
+    </Flex>
   );
 };
 
