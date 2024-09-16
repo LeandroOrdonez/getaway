@@ -1,6 +1,7 @@
 // backend/server.js
 const express = require('express');
 const cors = require('cors');
+const path = require('path');
 const dotenv = require('dotenv');
 const sequelize = require('./src/config/database');
 const accommodationRoutes = require('./src/routes/accommodationRoutes');
@@ -14,7 +15,16 @@ dotenv.config();
 
 const app = express();
 
-app.use(cors());
+const corsOptions = {
+  origin: process.env.FRONTEND_URL || 'http://localhost',
+  optionsSuccessStatus: 200
+};
+
+app.use(cors(corsOptions));
+
+const uploadDir = process.env.UPLOAD_DIRECTORY || 'uploads';
+app.use('/uploads', cors(corsOptions), express.static(path.join(__dirname, uploadDir)));
+
 app.use(express.json());
 
 app.use((req, res, next) => {
@@ -43,6 +53,7 @@ sequelize.sync().then(() => {
   console.log('Database synced');
   app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
+    console.log(`Serving uploads from: ${path.join(__dirname, uploadDir)}`);
   });
 }).catch(err => {
   console.error('Unable to sync database:', err);

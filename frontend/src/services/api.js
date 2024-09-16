@@ -30,7 +30,14 @@ export const getRankings = () => api.get('/comparisons/rankings');
 export const getUserComparisons = () => api.get('/users/comparisons');
 export const getAccommodationDetails = (id) => api.get(`/accommodations/${id}`);
 export const searchRankings = (searchTerm) => api.get(`/comparisons/rankings?search=${searchTerm}`);
-export const createAccommodation = (data) => api.post('/accommodations', data);
+export const createAccommodation = (data) => {
+  const config = {
+    headers: {
+      'Content-Type': 'multipart/form-data'
+    }
+  };
+  return api.post('/accommodations', data, config);
+};
 
 export const getUserSettings = () => api.get('/users/settings');
 export const updateUserSettings = (settings) => api.put('/users/settings', settings);

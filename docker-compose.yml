@@ -22,11 +22,15 @@ services:
       JWT_SECRET: ${JWT_SECRET}
       NODE_ENV: development
       PORT: 3000
+      UPLOAD_DIRECTORY: uploads
+      SERVER_URL: http://localhost:3000
+      FRONTEND_URL: http://localhost
     ports:
       - "3000:3000"
     volumes:
       - ./backend:/usr/src/app
       - /usr/src/app/node_modules
+      - accommodation_images:/usr/src/app/uploads
     command: npm start
 
   frontend:
@@ -38,6 +42,6 @@ services:
     volumes:
       - ./frontend/nginx.conf:/etc/nginx/conf.d/default.conf
 
-
 volumes:
   postgres_data:
+  accommodation_images:

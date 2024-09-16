@@ -17,7 +17,12 @@ const AccommodationDetail = () => {
     const fetchAccommodationDetails = async () => {
       try {
         const response = await getAccommodationDetails(id);
-        setAccommodation(response.data);
+        const data = response.data;
+        console.log('Accommodation data:', data);
+        data.facilities = Array.isArray(data.facilities) 
+          ? data.facilities 
+          : (typeof data.facilities === 'string' ? JSON.parse(data.facilities) : []);
+        setAccommodation(data);
         setLoading(false);
       } catch (error) {
         console.error('Error fetching accommodation details:', error);

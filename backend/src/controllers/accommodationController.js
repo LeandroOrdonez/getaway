@@ -1,9 +1,14 @@
 // backend/src/controllers/accommodationController.js
 const Accommodation = require('../models/accommodation');
+const { processUploadedImages, deleteImages, generateImageUrl } = require('../utils/imageUtils');
 
 exports.createAccommodation = async (req, res) => {
   try {
-    const accommodation = await Accommodation.create(req.body);
+    const accommodationData = req.body;
+    const imagePaths = await processUploadedImages(req.files);
+    accommodationData.imageUrls = imagePaths.map(generateImageUrl);
+
+    const accommodation = await Accommodation.create(accommodationData);
     res.status(201).json(accommodation);
   } catch (error) {
     res.status(400).json({ error: error.message });
@@ -34,15 +39,22 @@ exports.getAccommodation = async (req, res) => {
 
 exports.updateAccommodation = async (req, res) => {
   try {
-    const [updated] = await Accommodation.update(req.body, {
-      where: { id: req.params.id }
-    });
-    if (updated) {
-      const updatedAccommodation = await Accommodation.findByPk(req.params.id);
-      res.status(200).json(updatedAccommodation);
-    } else {
-      res.status(404).json({ message: 'Accommodation not found' });
+    const accommodationData = req.body;
+    const accommodation = await Accommodation.findByPk(req.params.id);
+
+    if (!accommodation) {
+      return res.status(404).json({ message: 'Accommodation not found' });
     }
+
+    if (req.files && req.files.length > 0) {
+      const newImagePaths = await processUploadedImages(req.files);
+      const oldImagePaths = accommodation.imageUrls.map(url => url.replace(`${process.env.SERVER_URL}/uploads/`, ''));
+      await deleteImages(oldImagePaths);
+      accommodationData.imageUrls = newImagePaths.map(generateImageUrl);
+    }
+
+    await accommodation.update(accommodationData);
+    res.status(200).json(accommodation);
   } catch (error) {
     res.status(400).json({ error: error.message });
   }
@@ -50,28 +62,15 @@ exports.updateAccommodation = async (req, res) => {
 
 exports.deleteAccommodation = async (req, res) => {
   try {
-    const deleted = await Accommodation.destroy({
-      where: { id: req.params.id }
-    });
-    if (deleted) {
-      res.status(204).send("Accommodation deleted");
-    } else {
-      res.status(404).json({ message: 'Accommodation not found' });
+    const accommodation = await Accommodation.findByPk(req.params.id);
+    if (!accommodation) {
+      return res.status(404).json({ message: 'Accommodation not found' });
     }
-  } catch (error) {
-    res.status(400).json({ error: error.message });
-  }
-};
 
-exports.calculateDrivingDistance = async (req, res) => {
-  try {
-    const { origin, destination } = req.body;
-    
-    // Here you would typically use a mapping service API like Google Maps to calculate the actual distance
-    // For this example, we'll just return a mock distance
-    const mockDistance = Math.floor(Math.random() * 100) + 1; // Random distance between 1 and 100 km
-    
-    res.json({ distance: `${mockDistance} km` });
+    const imagePaths = accommodation.imageUrls.map(url => url.replace(`${process.env.SERVER_URL}/uploads/`, ''));
+    await deleteImages(imagePaths);
+    await accommodation.destroy();
+    res.status(204).send("Accommodation deleted");
   } catch (error) {
     res.status(400).json({ error: error.message });
   }

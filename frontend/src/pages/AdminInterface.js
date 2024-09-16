@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Container, Heading, TextField, Button, Flex, Text, Card, Grid, Box, Table, Tabs } from '@radix-ui/themes';
-import { PlusIcon, CopyIcon, Cross2Icon } from '@radix-ui/react-icons';
+import { PlusIcon, CopyIcon, Cross2Icon, ImageIcon } from '@radix-ui/react-icons';
 import { createAccommodation, registerUser, listUsers } from '../services/api';
 
 const AdminInterface = () => {
@@ -18,6 +18,8 @@ const AdminInterface = () => {
   const [newUser, setNewUser] = useState({ username: '', email: '', password: '' });
   const [users, setUsers] = useState([]);
   const [message, setMessage] = useState({ type: '', content: '' });
+  const [imageFiles, setImageFiles] = useState([]);
+  const [imagePreviews, setImagePreviews] = useState([]);
 
   useEffect(() => {
     fetchUsers();
@@ -59,19 +61,40 @@ const AdminInterface = () => {
   };
 
   const handleImageUpload = (e) => {
-    const newImageUrls = Array.from(e.target.files).map((file, index) => 
-      URL.createObjectURL(file)
-    );
-    setAccommodation({
-      ...accommodation,
-      imageUrls: [...accommodation.imageUrls, ...newImageUrls]
-    });
+    const files = Array.from(e.target.files);
+    setImageFiles(files);
+
+    const previews = files.map(file => URL.createObjectURL(file));
+    setImagePreviews(previews);
+  };
+
+  const handleRemoveImage = (index) => {
+    const newFiles = [...imageFiles];
+    newFiles.splice(index, 1);
+    setImageFiles(newFiles);
+
+    const newPreviews = [...imagePreviews];
+    URL.revokeObjectURL(newPreviews[index]);
+    newPreviews.splice(index, 1);
+    setImagePreviews(newPreviews);
   };
 
   const handleAccommodationSubmit = async (e) => {
     e.preventDefault();
     try {
-      await createAccommodation(accommodation);
+      const formData = new FormData();
+      Object.keys(accommodation).forEach(key => {
+        if (key === 'facilities') {
+          formData.append(key, JSON.stringify(accommodation[key]));
+        } else {
+          formData.append(key, accommodation[key]);
+        }
+      });
+      imageFiles.forEach(file => {
+        formData.append('images', file);
+      });
+
+      await createAccommodation(formData);
       setMessage({ type: 'success', content: 'Accommodation created successfully!' });
       setAccommodation({
         name: '',
@@ -83,6 +106,8 @@ const AdminInterface = () => {
         imageUrls: [],
         originalListingUrl: '',
       });
+      setImageFiles([]);
+      setImagePreviews([]);
     } catch (error) {
       console.error('Error creating accommodation:', error);
       setMessage({ type: 'error', content: 'Failed to create accommodation. Please try again.' });
@@ -255,17 +280,30 @@ const AdminInterface = () => {
                   </Flex>
                 </Card>
                 <Box>
-                  <Text as="label" size="2" mb="2" display="block">
-                    Upload Images
-                  </Text>
+                  <Flex align="center" mb="2">
+                    <ImageIcon />
+                    <Text as="label" size="2" ml="2">
+                      Upload Images
+                    </Text>
+                  </Flex>
                   <input
                     type="file"
                     multiple
                     onChange={handleImageUpload}
+                    accept="image/*"
                     style={{ display: 'block', marginTop: '4px' }}
                   />
                 </Box>
-                <Text size="2">Selected Images: {accommodation.imageUrls.length}</Text>
+                <Grid columns="4" gap="2">
+                  {imagePreviews.map((preview, index) => (
+                    <Box key={index} position="relative">
+                      <img src={preview} alt={`Preview ${index + 1}`} style={{ width: '100%', height: 'auto' }} />
+                      <Button size="1" color="red" position="absolute" top="0" right="0" onClick={() => handleRemoveImage(index)}>
+                        <Cross2Icon />
+                      </Button>
+                    </Box>
+                  ))}
+                </Grid>
                 <Button type="submit">Create Accommodation</Button>
               </Flex>
             </form>

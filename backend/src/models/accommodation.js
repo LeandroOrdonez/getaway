@@ -41,6 +41,13 @@ const Accommodation = sequelize.define('Accommodation', {
     type: DataTypes.JSONB,
     allowNull: false,
     defaultValue: [],
+    get() {
+      const rawValue = this.getDataValue('facilities');
+      return typeof rawValue === 'string' ? JSON.parse(rawValue) : rawValue;
+    },
+    set(value) {
+      this.setDataValue('facilities', Array.isArray(value) ? value : JSON.parse(value));
+    }
   },
   imageUrls: {
     type: DataTypes.JSONB,
