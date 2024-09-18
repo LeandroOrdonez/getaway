@@ -21,10 +21,10 @@ services:
       DB_PASSWORD: ${DB_PASSWORD}
       JWT_SECRET: ${JWT_SECRET}
       NODE_ENV: development
-      PORT: 3000
+      PORT: ${PORT}
       UPLOAD_DIRECTORY: uploads
-      SERVER_URL: http://localhost:3000
-      FRONTEND_URL: http://localhost
+      SERVER_URL: ${SERVER_URL}
+      FRONTEND_URL: ${FRONTEND_URL}
     ports:
       - "3000:3000"
     volumes:
@@ -36,7 +36,7 @@ services:
   frontend:
     build: ./frontend
     ports:
-      - "80:80"
+      - "8080:8080"
     depends_on:
       - backend
     volumes:
