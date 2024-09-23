@@ -2,6 +2,9 @@
 const multer = require('multer');
 const path = require('path');
 
+const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
+const MAX_FILES = 20;
+
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
     cb(null, process.env.UPLOAD_DIRECTORY || 'uploads/');
@@ -24,8 +27,23 @@ const upload = multer({
   storage: storage,
   fileFilter: fileFilter,
   limits: {
-    fileSize: 10 * 1024 * 1024 // 10MB
+    fileSize: MAX_FILE_SIZE,
+    files: MAX_FILES
   }
 });
 
-module.exports = upload;
+// Custom middleware to handle errors
+const handleUploadErrors = (err, req, res, next) => {
+  if (err instanceof multer.MulterError) {
+    if (err.code === 'LIMIT_FILE_SIZE') {
+      return res.status(400).json({ error: `File size limit exceeded. Maximum size is ${MAX_FILE_SIZE / (1024 * 1024)}MB.` });
+    }
+    if (err.code === 'LIMIT_FILE_COUNT') {
+      return res.status(400).json({ error: `Too many files. Maximum is ${MAX_FILES} files.` });
+    }
+    return res.status(400).json({ error: err.message });
+  }
+  next(err);
+};
+
+module.exports = { upload, handleUploadErrors };

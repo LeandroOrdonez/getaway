@@ -4,7 +4,7 @@ import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-d
 import { Theme } from '@radix-ui/themes';
 import '@radix-ui/themes/styles.css';
 import { LocationProvider } from './contexts/LocationContext';
-import { jwtDecode } from 'jwt-decode'; // Corrected import
+import { jwtDecode } from 'jwt-decode';
 import Header from './components/Header';
 import Footer from './components/Footer';
 import Home from './pages/Home';

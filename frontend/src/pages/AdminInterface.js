@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Container, Heading, TextField, Button, Flex, Text, Card, Grid, Box, Table, Tabs } from '@radix-ui/themes';
-import { PlusIcon, CopyIcon, Cross2Icon, ImageIcon } from '@radix-ui/react-icons';
+import { PlusIcon, CopyIcon, Cross2Icon, ImageIcon, ReloadIcon } from '@radix-ui/react-icons';
 import { createAccommodation, registerUser, listUsers } from '../services/api';
+import '../styles/AdminInterface.css';
 
 const AdminInterface = () => {
   const [accommodation, setAccommodation] = useState({
@@ -20,6 +21,7 @@ const AdminInterface = () => {
   const [message, setMessage] = useState({ type: '', content: '' });
   const [imageFiles, setImageFiles] = useState([]);
   const [imagePreviews, setImagePreviews] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     fetchUsers();
@@ -81,6 +83,7 @@ const AdminInterface = () => {
 
   const handleAccommodationSubmit = async (e) => {
     e.preventDefault();
+    setIsLoading(true);
     try {
       const formData = new FormData();
       Object.keys(accommodation).forEach(key => {
@@ -109,8 +112,16 @@ const AdminInterface = () => {
       setImageFiles([]);
       setImagePreviews([]);
     } catch (error) {
-      console.error('Error creating accommodation:', error);
+      if (error.response) {
+        console.error('Upload error:', error.response.data.error);
+      } else if (error.request) {
+        console.error('No response received:', error.request);
+      } else {
+        console.error('Error', error.message);
+      }
       setMessage({ type: 'error', content: 'Failed to create accommodation. Please try again.' });
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -292,19 +303,37 @@ const AdminInterface = () => {
                     onChange={handleImageUpload}
                     accept="image/*"
                     style={{ display: 'block', marginTop: '4px' }}
+                    disabled={isLoading}
                   />
                 </Box>
                 <Grid columns="4" gap="2">
                   {imagePreviews.map((preview, index) => (
                     <Box key={index} position="relative">
                       <img src={preview} alt={`Preview ${index + 1}`} style={{ width: '100%', height: 'auto' }} />
-                      <Button size="1" color="red" position="absolute" top="0" right="0" onClick={() => handleRemoveImage(index)}>
+                      <Button 
+                        size="1" 
+                        color="red" 
+                        position="absolute" 
+                        top="0" 
+                        right="0" 
+                        onClick={() => handleRemoveImage(index)}
+                        disabled={isLoading}
+                      >
                         <Cross2Icon />
                       </Button>
                     </Box>
                   ))}
                 </Grid>
-                <Button type="submit">Create Accommodation</Button>
+                <Button type="submit" disabled={isLoading}>
+                  {isLoading ? (
+                    <Flex align="center" justify="center">
+                      <ReloadIcon className="spinning" />
+                      <Text ml="2">Creating...</Text>
+                    </Flex>
+                  ) : (
+                    'Create Accommodation'
+                  )}
+                </Button>
               </Flex>
             </form>
           </Card>

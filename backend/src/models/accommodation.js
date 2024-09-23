@@ -53,6 +53,16 @@ const Accommodation = sequelize.define('Accommodation', {
     type: DataTypes.JSONB,
     allowNull: false,
     defaultValue: [],
+    get() {
+      const rawValue = this.getDataValue('imageUrls');
+      const baseUrl = process.env.SERVER_URL || 'http://localhost:3000';
+      return rawValue.map(path => `${baseUrl}${path}`);
+    },
+    set(value) {
+      // Remove base URL if present
+      const cleanedPaths = value.map(url => url.replace(/^https?:\/\/[^\/]+/, ''));
+      this.setDataValue('imageUrls', cleanedPaths);
+    }
   },
   originalListingUrl: {
     type: DataTypes.STRING,

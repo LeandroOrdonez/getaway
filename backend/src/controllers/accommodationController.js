@@ -6,7 +6,7 @@ exports.createAccommodation = async (req, res) => {
   try {
     const accommodationData = req.body;
     const imagePaths = await processUploadedImages(req.files);
-    accommodationData.imageUrls = imagePaths.map(generateImageUrl);
+    accommodationData.imageUrls = imagePaths;
 
     const accommodation = await Accommodation.create(accommodationData);
     res.status(201).json(accommodation);
@@ -48,9 +48,8 @@ exports.updateAccommodation = async (req, res) => {
 
     if (req.files && req.files.length > 0) {
       const newImagePaths = await processUploadedImages(req.files);
-      const oldImagePaths = accommodation.imageUrls.map(url => url.replace(`${process.env.SERVER_URL}/uploads/`, ''));
-      await deleteImages(oldImagePaths);
-      accommodationData.imageUrls = newImagePaths.map(generateImageUrl);
+      await deleteImages(accommodation.imageUrls);
+      accommodationData.imageUrls = newImagePaths;
     }
 
     await accommodation.update(accommodationData);

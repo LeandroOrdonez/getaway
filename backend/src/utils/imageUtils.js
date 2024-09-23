@@ -19,7 +19,7 @@ const processUploadedImages = async (files) => {
     // Delete the original file
     await fs.unlink(file.path);
 
-    imagePaths.push(resizedImagePath);
+    imagePaths.push(`/uploads/${path.basename(resizedImagePath)}`);
   }
 
   return imagePaths;
@@ -28,19 +28,14 @@ const processUploadedImages = async (files) => {
 const deleteImages = async (imagePaths) => {
   for (const imagePath of imagePaths) {
     try {
-      await fs.unlink(path.join(uploadDir, path.basename(imagePath)));
+      await fs.unlink(path.join(process.cwd(), imagePath));
     } catch (error) {
       console.error(`Failed to delete image: ${imagePath}`, error);
     }
   }
 };
 
-const generateImageUrl = (imagePath) => {
-  return `${process.env.SERVER_URL}/uploads/${path.basename(imagePath)}`;
-};
-
 module.exports = {
   processUploadedImages,
   deleteImages,
-  generateImageUrl
 };
