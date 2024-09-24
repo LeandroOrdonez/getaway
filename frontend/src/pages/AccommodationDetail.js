@@ -137,9 +137,8 @@ const AccommodationDetail = () => {
   return (
     <Flex 
       justify="center" 
-      align="center" 
+      align="top" 
       style={{ 
-        minHeight: '100vh',
         padding: '20px',
       }}
     >

@@ -58,7 +58,7 @@ const Header = ({ user, setUser }) => {
     <Flex as="header" p="4" justify="between" align="center">
       <Text size="5" weight="bold">Getaway Match</Text>
       <Box display={{ initial: 'none', sm: 'block' }}>
-        <Flex as="nav" gap="3">
+        <Flex as="nav" align="center" gap="3">
           {menuItems.map((item) => (
             <Button key={item.path} variant="ghost" asChild>
               <Link to={item.path}>{item.label}</Link>

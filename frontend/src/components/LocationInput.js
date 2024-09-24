@@ -88,7 +88,7 @@ const LocationInput = () => {
           disabled={isLoading}
         />
       </TextField.Root>
-      <Button onClick={detectLocation} disabled={isLoading}>
+      <Button size='3' onClick={detectLocation} disabled={isLoading}>
         <GlobeIcon />
         {isLoading ? 'Detecting...' : 'Detect My Location'}
       </Button>

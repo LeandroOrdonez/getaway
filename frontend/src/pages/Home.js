@@ -18,7 +18,7 @@ const Home = ({ user }) => {
     <Container size={{ initial: '1', sm: '2', md: '3' }} px={{ initial: '2', sm: '4' }}>
       <Flex direction="column" gap={{ initial: '4', sm: '6' }} my={{ initial: '4', sm: '6' }}>
         <Box>
-          <Heading size={{ initial: '6', sm: '8', md: '9' }} align="center" mb="2">
+          <Heading size={{ initial: '6', sm: '7', md: '8' }} align="center" mb="2">
             {isLoggedIn 
               ? `Welcome to Getaway Match${user.username ? `, ${user.username}` : ''}!`
               : 'Welcome to Getaway Match'}
@@ -29,7 +29,7 @@ const Home = ({ user }) => {
         </Box>
 
         <Card>
-          <Heading size={{ initial: '5', sm: '6' }} mb="4">Set Your Location</Heading>
+          <Heading size={{ initial: '3', sm: '4' }} mb="4">Set Your Location</Heading>
           <LocationInput />
         </Card>
 
@@ -37,10 +37,10 @@ const Home = ({ user }) => {
           <Card>
             <Flex direction="column" align="center" gap="2">
               <Heading size={{ initial: '3', sm: '4' }}>Ready to start{user.username ? `, ${user.username}` : ''}?</Heading>
-              <Text size="2" align="center" mb="4">
+              <Text size="3" align="center" mb="4">
                 Start comparing accommodations to find your perfect match.
               </Text>
-              <Button size={{ initial: '3', sm: '4' }} onClick={handleStartComparison} style={{ width: '100%' }}>
+              <Button size='3' onClick={handleStartComparison} style={{ width: '100%' }}>
                 Start Comparing
               </Button>
             </Flex>

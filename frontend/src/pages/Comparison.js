@@ -142,8 +142,8 @@ const Comparison = () => {
   };
 
   return (
-    <Container size="2" px="4">
-      <Heading size="5" mb="2">Which accommodation do you prefer?</Heading>
+    <Container size={{ initial: '1', sm: '2', md: '3' }} px={{ initial: '2', sm: '4' }}>
+      <Heading size={{ initial: '4', sm: '5' }} mb="2">Which accommodation do you prefer?</Heading>
       <Text size="2" mb="2">Comparison {comparisonCount + 1} of {maxComparisons}</Text>
       <Progress.Root value={(comparisonCount / maxComparisons) * 100} style={{ height: 10, backgroundColor: 'var(--gray-4)', borderRadius: 5, overflow: 'hidden', marginBottom: 16 }}>
         <Progress.Indicator style={{ width: `${(comparisonCount / maxComparisons) * 100}%`, backgroundColor: 'var(--accent-9)', height: '100%', transition: 'width 660ms cubic-bezier(0.65, 0, 0.35, 1)' }} />
@@ -167,10 +167,10 @@ const Comparison = () => {
               </AspectRatio>
               <Flex direction="column" style={{ flex: 1, padding: 'var(--space-4)' }}>
                 <Box p="3">
-                  <Heading size="3" mb="2">{accommodation.name}</Heading>
+                  <Heading aria-description={accommodation.name} size="3" mb="2">{truncate(accommodation.name, 50)}</Heading>
                   <Flex align="center" mb="2">
                     <MapPin size={16} />
-                    <Text size="2" ml="1">{accommodation.location}</Text>
+                    <Text aria-description={accommodation.location} size="2" ml="1">{truncate(accommodation.location, 60)}</Text>
                   </Flex>
                   <Flex justify="between" mb="2">
                     <Text weight="bold">€{accommodation.pricePerNight} per night</Text>
