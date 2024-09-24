@@ -1,8 +1,8 @@
 // frontend/src/pages/AccommodationDetail.js
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
-import { Container, Heading, Text, Card, Flex, Button, Badge, AspectRatio, Grid, Box, Separator, Dialog } from '@radix-ui/themes';
-import { Star, DollarSign, Bed, Car, ExternalLink, MapPin, ChevronLeft, ChevronRight, X } from 'lucide-react';
+import { Container, Heading, Text, Card, Flex, Button, Badge, AspectRatio, Grid, Box, Separator } from '@radix-ui/themes';
+import { Star, DollarSign, Bed, Car, ExternalLink, MapPin } from 'lucide-react';
 import { getAccommodationDetails } from '../services/api';
 import Carousel from '../components/Carousel';
 
@@ -63,17 +63,40 @@ const AccommodationDetail = () => {
       <Grid columns="4" gap="2" mt="2">
         {accommodation.imageUrls.slice(1, 5).map((imageUrl, index) => (
           <AspectRatio key={index} ratio={1/1}>
-            <img
-              src={imageUrl}
-              alt={`${accommodation.name} ${index + 2}`}
-              style={{
-                objectFit: 'cover',
-                width: '100%',
-                height: '100%',
-                cursor: 'pointer',
-              }}
-              onClick={() => handleImageClick(index + 1)}
-            />
+            <Box style={{ position: 'relative' }}>
+              <img
+                src={imageUrl}
+                alt={`${accommodation.name} ${index + 2}`}
+                style={{
+                  objectFit: 'cover',
+                  width: '100%',
+                  height: '100%',
+                  cursor: 'pointer',
+                }}
+                onClick={() => handleImageClick(index + 1)}
+              />
+              {index === 3 && accommodation.imageUrls.length > 5 && (
+                <Box
+                  style={{
+                    position: 'absolute',
+                    top: 0,
+                    left: 0,
+                    right: 0,
+                    bottom: 0,
+                    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    cursor: 'pointer',
+                  }}
+                  onClick={() => handleImageClick(4)}
+                >
+                  <Text style={{ color: 'white', fontSize: '1.5rem', fontWeight: 'bold' }}>
+                    +{accommodation.imageUrls.length - 5}
+                  </Text>
+                </Box>
+              )}
+            </Box>
           </AspectRatio>
         ))}
       </Grid>
