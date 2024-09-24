@@ -142,16 +142,16 @@ const Comparison = () => {
   };
 
   return (
-    <Container size="3">
-      <Heading size="6" mb="4">Which accommodation do you prefer?</Heading>
-      <Text size="3" mb="4">Comparison {comparisonCount + 1} of {maxComparisons}</Text>
+    <Container size="2" px="4">
+      <Heading size="5" mb="2">Which accommodation do you prefer?</Heading>
+      <Text size="2" mb="2">Comparison {comparisonCount + 1} of {maxComparisons}</Text>
       <Progress.Root value={(comparisonCount / maxComparisons) * 100} style={{ height: 10, backgroundColor: 'var(--gray-4)', borderRadius: 5, overflow: 'hidden', marginBottom: 16 }}>
         <Progress.Indicator style={{ width: `${(comparisonCount / maxComparisons) * 100}%`, backgroundColor: 'var(--accent-9)', height: '100%', transition: 'width 660ms cubic-bezier(0.65, 0, 0.35, 1)' }} />
       </Progress.Root>
       <Flex direction={{ initial: 'column', sm: 'row' }} gap="4" style={{ alignItems: 'stretch' }}>
         {accommodations.map((accommodation, index) => (
           <Box key={accommodation.id} style={{ flex: '1', minWidth: 0, width: '100%' }}>
-            <Card style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+            <Card mb="4">
               <AspectRatio ratio={16/9}>
                 <img
                   src={accommodation.imageUrls[0]}
@@ -166,57 +166,50 @@ const Comparison = () => {
                 />
               </AspectRatio>
               <Flex direction="column" style={{ flex: 1, padding: 'var(--space-4)' }}>
-                <Box mb="2">
-                  <Heading size="4">{truncate(accommodation.name, 50)}</Heading>
-                </Box>
-                <Flex align="center" mb="2">
-                  <MapPin size={16} />
-                  <Text size="2" ml="1" style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                    {truncate(accommodation.location, 60)}
-                  </Text>
-                </Flex>
-                <Flex justify="between" mb="2">
-                  <Flex align="center">
-                    <Text weight="bold">€{accommodation.pricePerNight}</Text>
-                    <Text size="1" ml="1">per night</Text>
-                  </Flex>
-                  <Flex align="center">
-                    <Bed size={16} />
-                    <Text size="2" ml="1">{accommodation.numRooms} rooms</Text>
-                  </Flex>
-                </Flex>
-                {accommodation.drivingDistance && (
+                <Box p="3">
+                  <Heading size="3" mb="2">{accommodation.name}</Heading>
                   <Flex align="center" mb="2">
-                    <Car size={16} />
-                    <Text size="2" ml="1">
-                      {accommodation.drivingDistance} ({accommodation.drivingDuration})
-                    </Text>
+                    <MapPin size={16} />
+                    <Text size="2" ml="1">{accommodation.location}</Text>
                   </Flex>
-                )}
-                <Flex align="center" mb="2">
-                  <Star size={16} />
-                  <Text size="2" ml="1">{accommodation.rating}</Text>
-                </Flex>
-                <Box mb="3">
-                  <Flex wrap="wrap" gap="1">
+                  <Flex justify="between" mb="2">
+                    <Text weight="bold">€{accommodation.pricePerNight} per night</Text>
+                    <Flex align="center">
+                      <Bed size={16} />
+                      <Text size="2" ml="1">{accommodation.numRooms} rooms</Text>
+                    </Flex>
+                  </Flex>
+                  {accommodation.drivingDistance && (
+                    <Flex align="center" mb="2">
+                      <Car size={16} />
+                      <Text size="2" ml="1">
+                        {accommodation.drivingDistance} ({accommodation.drivingDuration} drive)
+                      </Text>
+                    </Flex>
+                  )}
+                  <Flex align="center" mb="2">
+                    <Star size={16} />
+                    <Text size="2" ml="1">{accommodation.rating}</Text>
+                  </Flex>
+                  <Flex wrap="wrap" gap="1" mb="3">
                     {accommodation.facilities.map((facility, facilityIndex) => (
                       <Badge key={facilityIndex} size="1">{facility}</Badge>
                     ))}
                   </Flex>
+                  <Flex direction="column" gap="2">
+                    <Button 
+                      onClick={() => handleChoice(accommodation.id, accommodations.find(a => a.id !== accommodation.id).id)}
+                    >
+                      Choose this one
+                    </Button>
+                    <Button variant="outline" asChild>
+                      <a href={accommodation.originalListingUrl} target="_blank" rel="noopener noreferrer">
+                        View Original Listing
+                        <ExternalLink size={16} style={{ marginLeft: '4px' }} />
+                      </a>
+                    </Button>
+                  </Flex>
                 </Box>
-                <Flex direction="column" gap="2" mt="auto">
-                  <Button 
-                    onClick={() => handleChoice(accommodation.id, accommodations.find(a => a.id !== accommodation.id).id)}
-                  >
-                    Choose this one
-                  </Button>
-                  <Button variant="outline" asChild>
-                    <a href={accommodation.originalListingUrl} target="_blank" rel="noopener noreferrer">
-                      View Original Listing
-                      <ExternalLink size={16} style={{ marginLeft: '4px' }} />
-                    </a>
-                  </Button>
-                </Flex>
               </Flex>
               {showCarousel[index] && (
                 <Carousel
