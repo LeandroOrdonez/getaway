@@ -1,6 +1,7 @@
+// frontend/src/pages/Login.js
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Container, Heading, Text, TextField, Button, Flex, Card } from '@radix-ui/themes';
+import { Container, Heading, Text, TextField, Button, Flex, Card, Box } from '@radix-ui/themes';
 import { EnvelopeClosedIcon, LockClosedIcon } from '@radix-ui/react-icons';
 import { login } from '../services/api';
 import { jwtDecode } from 'jwt-decode';
@@ -41,46 +42,65 @@ const Login = ({ setUser }) => {
   };
 
   return (
-    <Container size="1">
-      <Card>
-        <Flex direction="column" gap="4" style={{ maxWidth: 400, margin: '0 auto' }}>
-          <Heading size="6" align="center">Login</Heading>
-          <form onSubmit={handleSubmit}>
-            <Flex direction="column" gap="3">
-              <TextField.Root>
-                <TextField.Slot>
-                  <EnvelopeClosedIcon height="16" width="16" />
-                </TextField.Slot>
-                <TextField.Input 
-                  type="email"
-                  placeholder="Email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  required
-                />
-              </TextField.Root>
-              <TextField.Root>
-                <TextField.Slot>
-                  <LockClosedIcon height="16" width="16" />
-                </TextField.Slot>
-                <TextField.Input 
-                  type="password"
-                  placeholder="Password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  required
-                />
-              </TextField.Root>
-              <Button type="submit">Login</Button>
-            </Flex>
-          </form>
-          {error && (
-            <Text color="red" size="2">
-              {error}
+    <Container size={{ initial: '1', sm: '2', md: '3' }}>
+      <Flex
+        align="top" 
+        justify="center" 
+        style={{ padding: '20px' }}
+      >
+        <Card style={{ width: '100%', maxWidth: '400px' }}>
+          <Flex direction="column" gap="4">
+            <Heading size={{ initial: '5', sm: '6' }} align="center">Welcome Back</Heading>
+            <Text size="2" color="gray" align="center">
+              Log in to your Getaway Match account
             </Text>
-          )}
-        </Flex>
-      </Card>
+            <form onSubmit={handleSubmit}>
+              <Flex direction="column" gap="3">
+                <TextField.Root size={{ initial: '2', sm: '3' }}>
+                  <TextField.Slot>
+                    <EnvelopeClosedIcon height="16" width="16" />
+                  </TextField.Slot>
+                  <TextField.Input 
+                    type="email"
+                    placeholder="Email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    required
+                  />
+                </TextField.Root>
+                <TextField.Root size={{ initial: '2', sm: '3' }}>
+                  <TextField.Slot>
+                    <LockClosedIcon height="16" width="16" />
+                  </TextField.Slot>
+                  <TextField.Input 
+                    type="password"
+                    placeholder="Password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required
+                  />
+                </TextField.Root>
+                <Button type="submit" size={{ initial: '3', sm: '4' }}>
+                  Log In
+                </Button>
+              </Flex>
+            </form>
+            {error && (
+              <Text color="red" size="2" align="center">
+                {error}
+              </Text>
+            )}
+            <Box>
+              <Text size="2" align="center">
+                Don't know your password?{' '}
+                <Text as="span" style={{ fontStyle: 'italic' }}>
+                  Login with the unique link porovided by your host
+                </Text>
+              </Text>
+            </Box>
+          </Flex>
+        </Card>
+      </Flex>
     </Container>
   );
 };
