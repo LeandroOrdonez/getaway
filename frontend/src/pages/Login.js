@@ -90,14 +90,6 @@ const Login = ({ setUser }) => {
                 {error}
               </Text>
             )}
-            <Box>
-              <Text size="2" align="center">
-                Don't know your password?{' '}
-                <Text as="span" style={{ fontStyle: 'italic' }}>
-                  Login with the unique link porovided by your host
-                </Text>
-              </Text>
-            </Box>
           </Flex>
         </Card>
       </Flex>

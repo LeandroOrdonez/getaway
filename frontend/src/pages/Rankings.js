@@ -64,7 +64,7 @@ const Rankings = () => {
   if (error) return <Text color="red">{error}</Text>;
 
   return (
-    <Container size={{ initial: '1', sm: '2', md: '3' }}>
+    <Container size={{ initial: '1', sm: '2', md: '3' }} style={{padding: '20px'}}>
       <Heading size={{ initial: '6', sm: '7', md: '8' }} align="center" mb="4">Accommodation Rankings</Heading>
       
       <Card mb="4">

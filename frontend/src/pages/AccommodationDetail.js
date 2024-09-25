@@ -1,9 +1,10 @@
 // frontend/src/pages/AccommodationDetail.js
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { useParams } from 'react-router-dom';
 import { Container, Heading, Text, Card, Flex, Button, Badge, AspectRatio, Grid, Box, Separator } from '@radix-ui/themes';
 import { Star, DollarSign, Bed, Car, ExternalLink, MapPin } from 'lucide-react';
-import { getAccommodationDetails } from '../services/api';
+import { getAccommodationDetails, calculateDrivingDistance } from '../services/api';
+import { LocationContext } from '../contexts/LocationContext';
 import Carousel from '../components/Carousel';
 
 const AccommodationDetail = () => {
@@ -11,7 +12,9 @@ const AccommodationDetail = () => {
   const [loading, setLoading] = useState(true);
   const [showCarousel, setShowCarousel] = useState(false);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [drivingInfo, setDrivingInfo] = useState(null);
   const { id } = useParams();
+  const { location } = useContext(LocationContext);
 
   useEffect(() => {
     const fetchAccommodationDetails = async () => {
@@ -24,6 +27,15 @@ const AccommodationDetail = () => {
           : (typeof data.facilities === 'string' ? JSON.parse(data.facilities) : []);
         setAccommodation(data);
         setLoading(false);
+
+        // Fetch driving distance and duration
+        if (location && location.place_name) {
+          const distanceResponse = await calculateDrivingDistance(location.place_name, data.location);
+          setDrivingInfo({
+            distance: `${distanceResponse.data.distance.toFixed(1)} km`,
+            duration: `${distanceResponse.data.duration.toFixed(0)} mins`
+          });
+        }
       } catch (error) {
         console.error('Error fetching accommodation details:', error);
         setLoading(false);
@@ -31,7 +43,7 @@ const AccommodationDetail = () => {
     };
 
     fetchAccommodationDetails();
-  }, [id]);
+  }, [id, location]);
 
   if (loading) return <Text>Loading...</Text>;
   if (!accommodation) return <Text>Accommodation not found</Text>;
@@ -83,7 +95,7 @@ const AccommodationDetail = () => {
                     left: 0,
                     right: 0,
                     bottom: 0,
-                    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+                    backgroundColor: 'rgba(0, 0, 0, 0.6)',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
@@ -107,7 +119,7 @@ const AccommodationDetail = () => {
     <Box>
       <Heading size="6" mb="2">{accommodation.name}</Heading>
       <Flex align="center" mb="3">
-        <MapPin size={16} />
+        <MapPin size={24} />
         <Text size="3" ml="2">{accommodation.location}</Text>
       </Flex>
       <Separator size="4" mb="3" />
@@ -129,6 +141,17 @@ const AccommodationDetail = () => {
         </Flex>
       </Grid>
       <Separator size="4" mb="3" />
+      {drivingInfo && (
+        <Box mb="3">
+          <Heading size="4" mb="2">Distance from Your Location</Heading>
+          <Flex align="center">
+            <Car size={16} />
+            <Text size="3" ml="2">
+              {drivingInfo.distance} ({drivingInfo.duration} drive)
+            </Text>
+          </Flex>
+        </Box>
+      )}
       <Box mb="3">
         <Heading size="4" mb="2">Facilities</Heading>
         <Flex wrap="wrap" gap="2">
@@ -137,17 +160,7 @@ const AccommodationDetail = () => {
           ))}
         </Flex>
       </Box>
-      {accommodation.drivingDistance && (
-        <Box mb="3">
-          <Heading size="4" mb="2">Distance</Heading>
-          <Flex align="center">
-            <Car size={16} />
-            <Text size="3" ml="2">
-              {accommodation.drivingDistance} ({accommodation.drivingDuration} drive)
-            </Text>
-          </Flex>
-        </Box>
-      )}
+      
       <Button size="3" asChild>
         <a href={accommodation.originalListingUrl} target="_blank" rel="noopener noreferrer">
           View Original Listing
@@ -176,10 +189,10 @@ const AccommodationDetail = () => {
           direction={{ initial: 'column', md: 'row' }}
           gap="4"
         >
-          <Box style={{ flex: '3' }}>
+          <Box style={{ flex: 3.5 }}>
             <ImageGallery />
           </Box>
-          <Box style={{ flex: '2' }}>
+          <Box style={{ flex: 1.5 }}>
             <AccommodationInfo />
           </Box>
         </Flex>
