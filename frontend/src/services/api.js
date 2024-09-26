@@ -29,6 +29,7 @@ export const getComparisonCount = () => api.get('/comparisons/count');
 export const getRankings = () => api.get('/comparisons/rankings');
 export const getUserComparisons = () => api.get('/users/comparisons');
 export const getAccommodationDetails = (id) => api.get(`/accommodations/${id}`);
+export const listAccommodations = () => api.get('/accommodations');
 export const searchRankings = (searchTerm) => api.get(`/comparisons/rankings?search=${searchTerm}`);
 export const createAccommodation = (data) => {
   const config = {
