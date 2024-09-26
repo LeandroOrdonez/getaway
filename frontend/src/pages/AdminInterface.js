@@ -195,7 +195,7 @@ const AdminInterface = () => {
             <Text size="2" color="gray">{accommodation.location}</Text>
             <Flex justify="between" align="center">
               <Text size="2" weight="bold">€{accommodation.pricePerNight} per night</Text>
-              <Badge size="1" variant="soft">{accommodation.numRooms} rooms</Badge>
+              <Badge size="1" variant="outline">{accommodation.numRooms} rooms</Badge>
             </Flex>
           </Flex>
         </Box>
@@ -205,7 +205,7 @@ const AdminInterface = () => {
 
   return (
     <Container size="3">
-      <Heading size="8" mb="4">Admin Interface</Heading>
+      <Heading size="6" mb="5">Admin Interface</Heading>
       <Tabs.Root defaultValue="accommodations">
         <Tabs.List>
           <Tabs.Trigger value="accommodations">Accommodations</Tabs.Trigger>
