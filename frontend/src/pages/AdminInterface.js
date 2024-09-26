@@ -1,3 +1,4 @@
+// frontend/src/pages/AdminInterface.js
 import React, { useState, useEffect } from 'react';
 import { Container, Heading, TextField, Button, Flex, Text, Card, Grid, Box, Table, Tabs } from '@radix-ui/themes';
 import { PlusIcon, CopyIcon, Cross2Icon, ImageIcon, ReloadIcon } from '@radix-ui/react-icons';
@@ -128,10 +129,14 @@ const AdminInterface = () => {
   const handleUserRegistration = async (e) => {
     e.preventDefault();
     try {
-      await registerUser(newUser);
+      const response = await registerUser(newUser);
       setMessage({ type: 'success', content: 'User registered successfully!' });
-      setNewUser({ username: '', email: '', password: '' });
+      setNewUser({ username: '', email: '' });
       fetchUsers();
+      
+      // Display the unique login URL
+      const uniqueLoginUrl = `${window.location.origin}/login/${response.data.uniqueUrl}`;
+      setMessage({ type: 'success', content: 'User registered successfully!' });
     } catch (error) {
       console.error('Error registering user:', error);
       setMessage({ type: 'error', content: 'Failed to register user. Please try again.' });
@@ -169,14 +174,6 @@ const AdminInterface = () => {
                   placeholder="Email"
                   name="email"
                   value={newUser.email}
-                  onChange={handleNewUserChange}
-                  required
-                />
-                <TextField.Input
-                  type="password"
-                  placeholder="Password"
-                  name="password"
-                  value={newUser.password}
                   onChange={handleNewUserChange}
                   required
                 />
