@@ -65,7 +65,7 @@ const Rankings = () => {
 
   return (
     <Container size={{ initial: '1', sm: '2', md: '3' }} style={{padding: '20px'}}>
-      <Heading size={{ initial: '4', sm: '5', md: '6' }} align="center" mb="4">Accommodation Rankings</Heading>
+      <Heading size={{ initial: '5', sm: '6', md: '6' }} align="center" mb="4">Accommodation Rankings</Heading>
       
       <Card mb="4">
         <form onSubmit={handleSearch}>

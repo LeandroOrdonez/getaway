@@ -204,8 +204,8 @@ const AdminInterface = () => {
   );
 
   return (
-    <Container size="3">
-      <Heading size="6" mb="5">Admin Interface</Heading>
+    <Container size={{ initial: '1', sm: '2', md: '3' }} style={{padding: '20px'}}>
+      <Heading size={{ initial: '5', sm: '6', md: '6' }} mb="4">Admin Interface</Heading>
       <Tabs.Root defaultValue="accommodations">
         <Tabs.List>
           <Tabs.Trigger value="accommodations">Accommodations</Tabs.Trigger>
