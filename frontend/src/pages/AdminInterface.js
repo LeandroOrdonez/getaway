@@ -1,5 +1,6 @@
 // frontend/src/pages/AdminInterface.js
 import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { Container, Heading, TextField, Button, Flex, Text, Card, Grid, Box, Table, Tabs, Badge } from '@radix-ui/themes';
 import * as Collapsible from '@radix-ui/react-collapsible';
 import { PlusIcon, CopyIcon, Cross2Icon, ImageIcon, ReloadIcon, ChevronDownIcon, ChevronUpIcon, StarFilledIcon } from '@radix-ui/react-icons';
@@ -186,7 +187,9 @@ const AdminInterface = () => {
         <Box p="3" style={{ flex: 1 }}>
           <Flex direction="column" gap="2">
             <Flex justify="between" align="center">
-              <Heading size="3">{accommodation.name}</Heading>
+              <Link to={`/accommodation/${accommodation.id}`} style={{textDecoration: 'none'}}>
+                <Heading size="3">{accommodation.name}</Heading>
+              </Link>
               <Flex align="center" gap="1">
                 <StarFilledIcon color="gold" />
                 <Text weight="bold">{accommodation.rating}</Text>

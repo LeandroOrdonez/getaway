@@ -2,7 +2,7 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { useParams } from 'react-router-dom';
 import { Container, Heading, Text, Card, Flex, Button, Badge, AspectRatio, Grid, Box, Separator } from '@radix-ui/themes';
-import { Star, DollarSign, Bed, Car, ExternalLink, MapPin } from 'lucide-react';
+import { Star, Banknote, Bed, Car, ExternalLink, MapPin } from 'lucide-react';
 import { getAccommodationDetails, calculateDrivingDistance } from '../services/api';
 import { LocationContext } from '../contexts/LocationContext';
 import Carousel from '../components/Carousel';
@@ -125,8 +125,8 @@ const AccommodationDetail = () => {
       <Separator size="4" mb="3" />
       <Grid columns="3" gap="4" mb="3">
         <Flex direction="column" align="center">
-          <DollarSign size={24} />
-          <Text weight="bold" size="5">${accommodation.pricePerNight}</Text>
+          <Banknote size={24} />
+          <Text weight="bold" size="5">€{accommodation.pricePerNight}</Text>
           <Text size="2">per night</Text>
         </Flex>
         <Flex direction="column" align="center">
