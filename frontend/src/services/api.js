@@ -20,7 +20,7 @@ api.interceptors.request.use((config) => {
 export const login = (email, password) => api.post('/auth/login', { email, password });
 export const autoLogin = (uniqueUrl) => api.get(`/auth/auto-login/${uniqueUrl}`);
 export const registerUser = (userData) => api.post('/auth/register', userData);
-export const listUsers = () => api.get('/users/list');
+export const listUsers = () => api.get('/users/list-with-comparisons');
 
 export const getRandomPair = () => api.get('/comparisons/random-pair');
 export const submitComparison = (winnerAccommodationId, loserAccommodationId) => 

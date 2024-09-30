@@ -2,6 +2,7 @@
 const User = require('../models/user');
 const Comparison = require('../models/comparison');
 const Accommodation = require('../models/accommodation');
+const sequelize = require('../config/database');
 
 exports.getUserSettings = async (req, res) => {
   try {
@@ -58,6 +59,34 @@ exports.listRegisteredUsers = async (req, res) => {
     });
     res.json(users);
   } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+exports.listRegisteredUsersWithComparisonCount = async (req, res) => {
+  try {
+    const [users, metadata] = await sequelize.query(`
+      SELECT 
+        u.id, 
+        u.username, 
+        u.email, 
+        u."uniqueUrl",
+        COUNT(c.id) as "comparisonCount"
+      FROM 
+        "Users" u
+      LEFT JOIN 
+        "Comparisons" c ON u.id = c."userId"
+      WHERE 
+        u."isAdmin" = false
+      GROUP BY 
+        u.id
+      ORDER BY 
+        u.username
+    `);
+
+    res.json(users);
+  } catch (error) {
+    console.error('Error in listRegisteredUsersWithComparisonCount:', error);
     res.status(500).json({ error: error.message });
   }
 };

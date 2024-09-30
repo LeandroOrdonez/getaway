@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Container, Heading, TextField, Button, Flex, Text, Card, Grid, Box, Table, Tabs, Badge } from '@radix-ui/themes';
 import * as Collapsible from '@radix-ui/react-collapsible';
+import * as Progress from '@radix-ui/react-progress';
 import { PlusIcon, CopyIcon, Cross2Icon, ImageIcon, ReloadIcon, ChevronDownIcon, ChevronUpIcon, StarFilledIcon } from '@radix-ui/react-icons';
 import { createAccommodation, registerUser, listUsers, listAccommodations } from '../services/api';
 import '../styles/AdminInterface.css';
@@ -58,7 +59,11 @@ const AdminInterface = () => {
   };
 
   const handleNewUserChange = (e) => {
-    setNewUser({ ...newUser, [e.target.name]: e.target.value });
+    let u = { ...newUser, [e.target.name]: e.target.value };
+    if (e.target.name === 'password' && !e.target.value) {
+      u = { ...u, password: '' };
+    }
+    setNewUser(u);
   };
 
   const handleAddFacility = () => {
@@ -148,11 +153,9 @@ const AdminInterface = () => {
     try {
       const response = await registerUser(newUser);
       setMessage({ type: 'success', content: 'User registered successfully!' });
-      setNewUser({ username: '', email: '' });
+      setNewUser({ username: '', email: '', password: '' });
       fetchUsers();
       
-      // Display the unique login URL
-      const uniqueLoginUrl = `${window.location.origin}/login/${response.data.uniqueUrl}`;
       setMessage({ type: 'success', content: 'User registered successfully!' });
     } catch (error) {
       console.error('Error registering user:', error);
@@ -241,30 +244,42 @@ const AdminInterface = () => {
           </Card>
 
           <Card mt="4">
-            <Heading size="6" mb="4">Registered Users</Heading>
-            <Table.Root>
-              <Table.Header>
-                <Table.Row>
-                  <Table.ColumnHeaderCell>Username</Table.ColumnHeaderCell>
-                  <Table.ColumnHeaderCell>Email</Table.ColumnHeaderCell>
-                  <Table.ColumnHeaderCell>Login URL</Table.ColumnHeaderCell>
+          <Heading size="6" mb="4">Registered Users</Heading>
+          <Table.Root>
+            <Table.Header>
+              <Table.Row>
+                <Table.ColumnHeaderCell>Username</Table.ColumnHeaderCell>
+                <Table.ColumnHeaderCell>Email</Table.ColumnHeaderCell>
+                <Table.ColumnHeaderCell>Comparisons</Table.ColumnHeaderCell>
+                <Table.ColumnHeaderCell>Login URL</Table.ColumnHeaderCell>
+              </Table.Row>
+            </Table.Header>
+            <Table.Body>
+              {users.map((user) => (
+                <Table.Row key={user.id}>
+                  <Table.Cell>{user.username}</Table.Cell>
+                  <Table.Cell>{user.email}</Table.Cell>
+                  <Table.Cell>
+                    <Flex direction="column" gap="1">
+                      <Progress.Root className="ProgressRoot" value={user.comparisonCount * 10}>
+                        <Progress.Indicator
+                          className="ProgressIndicator"
+                          style={{ transform: `translateX(-${100 - (user.comparisonCount * 10)}%)` }}
+                        />
+                      </Progress.Root>
+                      <Text size="1">{user.comparisonCount} / 10</Text>
+                    </Flex>
+                  </Table.Cell>
+                  <Table.Cell>
+                    <Button size="1" onClick={() => copyLoginUrl(user.uniqueUrl)}>
+                      <CopyIcon /> Copy URL
+                    </Button>
+                  </Table.Cell>
                 </Table.Row>
-              </Table.Header>
-              <Table.Body>
-                {users.map((user) => (
-                  <Table.Row key={user.id}>
-                    <Table.Cell>{user.username}</Table.Cell>
-                    <Table.Cell>{user.email}</Table.Cell>
-                    <Table.Cell>
-                      <Button size="1" onClick={() => copyLoginUrl(user.uniqueUrl)}>
-                        <CopyIcon /> Copy URL
-                      </Button>
-                    </Table.Cell>
-                  </Table.Row>
-                ))}
-              </Table.Body>
-            </Table.Root>
-          </Card>
+              ))}
+            </Table.Body>
+          </Table.Root>
+        </Card>
         </Tabs.Content>
         
         <Tabs.Content value="accommodations">

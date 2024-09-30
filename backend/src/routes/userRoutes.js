@@ -8,5 +8,6 @@ router.get('/settings', authenticate, userController.getUserSettings);
 router.put('/settings', authenticate, userController.updateUserSettings);
 router.get('/comparisons', authenticate, userController.getUserComparisons);
 router.get('/list', authenticate, authorizeAdmin, userController.listRegisteredUsers);
+router.get('/list-with-comparisons', authenticate, authorizeAdmin, userController.listRegisteredUsersWithComparisonCount);
 
 module.exports = router;
