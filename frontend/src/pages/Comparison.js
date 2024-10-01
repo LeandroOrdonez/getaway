@@ -1,9 +1,9 @@
 // frontend/src/pages/Comparison.js
 import React, { useState, useEffect, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Container, Heading, Text, Card, Flex, Button, Badge, AspectRatio, Box } from '@radix-ui/themes';
+import { Container, Heading, Text, Card, Flex, Button, Badge, Box } from '@radix-ui/themes';
 import * as Progress from '@radix-ui/react-progress';
-import { Star, ExternalLink, Bed, Car, MapPin } from 'lucide-react';
+import { Star, ExternalLink, Bed, Car, MapPin, ChevronLeft, ChevronRight } from 'lucide-react';
 import { getComparisonCount, getRandomPair, submitComparison, calculateDrivingDistance } from '../services/api';
 import { LocationContext } from '../contexts/LocationContext';
 import ResultsCalculation from '../components/ResultsCalculation';
@@ -16,7 +16,7 @@ const Comparison = () => {
   const [maxComparisons, setMaxComparisons] = useState(10);
   const [isCalculatingResults, setIsCalculatingResults] = useState(false);
   const [showCarousel, setShowCarousel] = useState([false, false]);
-  const [currentImageIndex, setCurrentImageIndex] = useState([0, 0]);
+  const [currentImageIndexes, setCurrentImageIndexes] = useState([0, 0]);
   const navigate = useNavigate();
   const { location } = useContext(LocationContext);
 
@@ -51,6 +51,7 @@ const Comparison = () => {
         return acc;
       }));
       setAccommodations(accommodationsWithDistance);
+      setCurrentImageIndexes([0, 0]); // Reset image indexes for new accommodations
     } catch (error) {
       console.error('Error fetching random pair:', error);
     }
@@ -82,7 +83,7 @@ const Comparison = () => {
   };
 
   const handleImageClick = (accommodationIndex, imageIndex) => {
-    setCurrentImageIndex(prev => {
+    setCurrentImageIndexes(prev => {
       const newIndexes = [...prev];
       newIndexes[accommodationIndex] = imageIndex;
       return newIndexes;
@@ -103,17 +104,15 @@ const Comparison = () => {
   };
 
   const handlePrevImage = (accommodationIndex) => {
-    setCurrentImageIndex(prev => {
+    setCurrentImageIndexes(prev => {
       const newIndexes = [...prev];
-      newIndexes[accommodationIndex] = newIndexes[accommodationIndex] === 0 
-        ? accommodations[accommodationIndex].imageUrls.length - 1 
-        : newIndexes[accommodationIndex] - 1;
+      newIndexes[accommodationIndex] = (newIndexes[accommodationIndex] - 1 + accommodations[accommodationIndex].imageUrls.length) % accommodations[accommodationIndex].imageUrls.length;
       return newIndexes;
     });
   };
 
   const handleNextImage = (accommodationIndex) => {
-    setCurrentImageIndex(prev => {
+    setCurrentImageIndexes(prev => {
       const newIndexes = [...prev];
       newIndexes[accommodationIndex] = (newIndexes[accommodationIndex] + 1) % accommodations[accommodationIndex].imageUrls.length;
       return newIndexes;
@@ -141,6 +140,23 @@ const Comparison = () => {
     return str.length > n ? str.substr(0, n-1) + '...' : str;
   };
 
+  const ImageIndicator = ({ current, total }) => (
+    <Box
+      style={{
+        position: 'absolute',
+        bottom: '8px',
+        right: '8px',
+        background: 'rgba(0, 0, 0, 0.5)',
+        color: 'white',
+        padding: '4px 8px',
+        borderRadius: '12px',
+        fontSize: '12px',
+      }}
+    >
+      {current + 1} / {total}
+    </Box>
+  );
+
   return (
     <Container size={{ initial: '1', sm: '2', md: '3' }} px={{ initial: '2', sm: '4' }}>
       <Heading size={{ initial: '4', sm: '5' }} mb="2">Which accommodation do you prefer?</Heading>
@@ -152,75 +168,104 @@ const Comparison = () => {
         {accommodations.map((accommodation, index) => (
           <Box key={accommodation.id} style={{ flex: '1', minWidth: 0, width: '100%' }}>
             <Card mb="4">
-              <AspectRatio ratio={16/9}>
-                <img
-                  src={accommodation.imageUrls[0]}
-                  alt={accommodation.name || 'Accommodation'}
-                  style={{
-                    objectFit: 'cover',
-                    width: '100%',
-                    height: '100%',
-                    cursor: 'pointer',
-                  }}
-                  onClick={() => handleImageClick(index, 0)}
-                />
-              </AspectRatio>
-              <Flex direction="column" style={{ flex: 1, padding: 'var(--space-4)' }}>
-                <Box p="3">
-                  <Heading aria-description={accommodation.name} size="3" mb="2">{truncate(accommodation.name, 50)}</Heading>
-                  <Flex align="center" mb="2">
-                    <MapPin size={16} />
-                    <Text aria-description={accommodation.location} size="2" ml="1">{truncate(accommodation.location, 60)}</Text>
-                  </Flex>
-                  <Flex justify="between" mb="2">
-                    <Text weight="bold">€{accommodation.pricePerNight} per night</Text>
-                    <Flex align="center">
-                      <Bed size={16} />
-                      <Text size="2" ml="1">{accommodation.numRooms} rooms</Text>
-                    </Flex>
-                  </Flex>
-                  {accommodation.drivingDistance && (
-                    <Flex align="center" mb="2">
-                      <Car size={16} />
-                      <Text size="2" ml="1">
-                        {accommodation.drivingDistance} ({accommodation.drivingDuration} drive)
-                      </Text>
-                    </Flex>
-                  )}
-                  <Flex align="center" mb="2">
-                    <Star size={16} />
-                    <Text size="2" ml="1">{accommodation.rating}</Text>
-                  </Flex>
-                  <Flex wrap="wrap" gap="1" mb="3">
-                    {accommodation.facilities.map((facility, facilityIndex) => (
-                      <Badge key={facilityIndex} size="1">{facility}</Badge>
-                    ))}
-                  </Flex>
-                  <Flex direction="column" gap="2">
+              <Flex direction="column" style={{ height: '100%' }}>
+                <Box style={{ position: 'relative', paddingTop: '56.25%' }}> {/* 16:9 aspect ratio */}
+                  <Box style={{ 
+                    position: 'absolute', 
+                    top: 0, 
+                    left: 0, 
+                    right: 0, 
+                    bottom: 0, 
+                    overflow: 'hidden'
+                  }}>
+                    <img
+                      src={accommodation.imageUrls[currentImageIndexes[index]]}
+                      alt={accommodation.name || 'Accommodation'}
+                      style={{
+                        width: '100%',
+                        height: '100%',
+                        objectFit: 'cover',
+                        cursor: 'pointer',
+                      }}
+                      onClick={() => handleImageClick(index, currentImageIndexes[index])}
+                    />
+                    <ImageIndicator 
+                      current={currentImageIndexes[index]} 
+                      total={accommodation.imageUrls.length} 
+                    />
                     <Button 
-                      onClick={() => handleChoice(accommodation.id, accommodations.find(a => a.id !== accommodation.id).id)}
+                      variant="ghost" 
+                      style={{ position: 'absolute', left: 0, top: '50%', transform: 'translateY(-50%)' }}
+                      onClick={(e) => { e.stopPropagation(); handlePrevImage(index); }}
                     >
-                      Choose this one
+                      <ChevronLeft />
                     </Button>
-                    <Button variant="outline" asChild>
-                      <a href={accommodation.originalListingUrl} target="_blank" rel="noopener noreferrer">
-                        View Original Listing
-                        <ExternalLink size={16} style={{ marginLeft: '4px' }} />
-                      </a>
+                    <Button 
+                      variant="ghost" 
+                      style={{ position: 'absolute', right: 0, top: '50%', transform: 'translateY(-50%)' }}
+                      onClick={(e) => { e.stopPropagation(); handleNextImage(index); }}
+                    >
+                      <ChevronRight />
                     </Button>
-                  </Flex>
+                  </Box>
                 </Box>
+                <Flex direction="column" style={{ flex: 1, padding: 'var(--space-4)' }}>
+                  <Box p="3">
+                    <Heading aria-description={accommodation.name} size="3" mb="2">{truncate(accommodation.name, 50)}</Heading>
+                    <Flex align="center" mb="2">
+                      <MapPin size={16} />
+                      <Text aria-description={accommodation.location} size="2" ml="1">{truncate(accommodation.location, 60)}</Text>
+                    </Flex>
+                    <Flex justify="between" mb="2">
+                      <Text weight="bold">€{accommodation.pricePerNight} per night</Text>
+                      <Flex align="center">
+                        <Bed size={16} />
+                        <Text size="2" ml="1">{accommodation.numRooms} rooms</Text>
+                      </Flex>
+                    </Flex>
+                    {accommodation.drivingDistance && (
+                      <Flex align="center" mb="2">
+                        <Car size={16} />
+                        <Text size="2" ml="1">
+                          {accommodation.drivingDistance} ({accommodation.drivingDuration} drive)
+                        </Text>
+                      </Flex>
+                    )}
+                    <Flex align="center" mb="2">
+                      <Star size={16} />
+                      <Text size="2" ml="1">{accommodation.rating}</Text>
+                    </Flex>
+                    <Flex wrap="wrap" gap="1" mb="3">
+                      {accommodation.facilities.map((facility, facilityIndex) => (
+                        <Badge key={facilityIndex} size="1">{facility}</Badge>
+                      ))}
+                    </Flex>
+                    <Flex direction="column" gap="2">
+                      <Button 
+                        onClick={() => handleChoice(accommodation.id, accommodations.find(a => a.id !== accommodation.id).id)}
+                      >
+                        Choose this one
+                      </Button>
+                      <Button variant="outline" asChild>
+                        <a href={accommodation.originalListingUrl} target="_blank" rel="noopener noreferrer">
+                          View Original Listing
+                          <ExternalLink size={16} style={{ marginLeft: '4px' }} />
+                        </a>
+                      </Button>
+                    </Flex>
+                  </Box>
+                </Flex>
               </Flex>
-              {showCarousel[index] && (
-                <Carousel
-                  images={accommodation.imageUrls}
-                  currentIndex={currentImageIndex[index]}
-                  onClose={() => handleCloseCarousel(index)}
-                  onPrev={() => handlePrevImage(index)}
-                  onNext={() => handleNextImage(index)}
-                />
-              )}
             </Card>
+            {showCarousel[index] && (
+              <Carousel
+                images={accommodation.imageUrls}
+                currentIndex={currentImageIndexes[index]}
+                onClose={() => handleCloseCarousel(index)}
+                onPrev={() => handlePrevImage(index)}
+                onNext={() => handleNextImage(index)}
+              />
+            )}
           </Box>
         ))}
       </Flex>
