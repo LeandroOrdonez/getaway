@@ -4,6 +4,7 @@ import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-d
 import { Theme } from '@radix-ui/themes';
 import '@radix-ui/themes/styles.css';
 import { LocationProvider } from './contexts/LocationContext';
+import { ToastProvider } from './contexts/ToastContext';
 import { jwtDecode } from 'jwt-decode';
 import Header from './components/Header';
 import Footer from './components/Footer';
@@ -45,29 +46,31 @@ const App = () => {
   return (
     <Router>
       <Theme appearance="light" accentColor="blue" grayColor="slate" radius="medium" scaling="100%">
-      <LocationProvider>
-        <Header user={user} setUser={setUser} />
-        <Routes>
-          <Route path="/" element={<Home user={user} />} />
-          <Route path="/login" element={<Login setUser={setUser} />} />
-          <Route path="/login/:uniqueUrl" element={<AutoLogin setUser={setUser} />} />
-          <Route 
-            path="/comparison" 
-            element={user ? <Comparison /> : <Navigate to="/login" replace />} 
-          />
-          <Route path="/rankings" element={<Rankings />} />
-          <Route 
-            path="/admin" 
-            element={user && user.isAdmin ? <AdminInterface /> : <Navigate to="/login" replace />} 
-          />
-          <Route path="/accommodation/:id" element={<AccommodationDetail />} />
-          <Route 
-            path="/profile" 
-            element={user ? <UserProfile /> : <Navigate to="/login" replace />} 
-          />
-        </Routes>
-        <Footer />
-      </LocationProvider>
+        <ToastProvider>
+          <LocationProvider>
+            <Header user={user} setUser={setUser} />
+            <Routes>
+              <Route path="/" element={<Home user={user} />} />
+              <Route path="/login" element={<Login setUser={setUser} />} />
+              <Route path="/login/:uniqueUrl" element={<AutoLogin setUser={setUser} />} />
+              <Route 
+                path="/comparison" 
+                element={user ? <Comparison /> : <Navigate to="/login" replace />} 
+              />
+              <Route path="/rankings" element={<Rankings />} />
+              <Route 
+                path="/admin" 
+                element={user && user.isAdmin ? <AdminInterface /> : <Navigate to="/login" replace />} 
+              />
+              <Route path="/accommodation/:id" element={<AccommodationDetail />} />
+              <Route 
+                path="/profile" 
+                element={user ? <UserProfile /> : <Navigate to="/login" replace />} 
+              />
+            </Routes>
+            <Footer />
+          </LocationProvider>
+        </ToastProvider>
       </Theme>
     </Router>
   );

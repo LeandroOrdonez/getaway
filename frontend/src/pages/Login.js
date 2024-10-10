@@ -5,16 +5,16 @@ import { Container, Heading, Text, TextField, Button, Flex, Card, Box } from '@r
 import { EnvelopeClosedIcon, LockClosedIcon } from '@radix-ui/react-icons';
 import { login } from '../services/api';
 import { jwtDecode } from 'jwt-decode';
+import { useToast } from '../contexts/ToastContext';
 
 const Login = ({ setUser }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
   const navigate = useNavigate();
+  const { addToast } = useToast();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError('');
     try {
       const response = await login(email, password);
       const { token } = response.data;
@@ -37,7 +37,7 @@ const Login = ({ setUser }) => {
       }
     } catch (error) {
       console.error('Error logging in:', error);
-      setError('Login failed. Please check your credentials.');
+      addToast('Error', 'Login failed. Please check your credentials.', 'error');
     }
   };
 
@@ -85,11 +85,6 @@ const Login = ({ setUser }) => {
                 </Button>
               </Flex>
             </form>
-            {error && (
-              <Text color="red" size="2" align="center">
-                {error}
-              </Text>
-            )}
           </Flex>
         </Card>
       </Flex>

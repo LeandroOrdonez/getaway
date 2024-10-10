@@ -2,51 +2,73 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { useParams } from 'react-router-dom';
 import { Container, Heading, Text, Card, Flex, Button, Badge, AspectRatio, Grid, Box, Separator } from '@radix-ui/themes';
-import { Star, Banknote, Bed, Car, ExternalLink, MapPin } from 'lucide-react';
+import { Star, Banknote, Bed, Car, ExternalLink, MapPin, Lock } from 'lucide-react';
 import { getAccommodationDetails, calculateDrivingDistance } from '../services/api';
 import { LocationContext } from '../contexts/LocationContext';
+import { useToast } from '../contexts/ToastContext';
 import Carousel from '../components/Carousel';
 
 const AccommodationDetail = () => {
   const [accommodation, setAccommodation] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [showCarousel, setShowCarousel] = useState(false);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [drivingInfo, setDrivingInfo] = useState(null);
   const { id } = useParams();
   const { location } = useContext(LocationContext);
+  const { addToast } = useToast();
 
   useEffect(() => {
+    let isMounted = true;
+
     const fetchAccommodationDetails = async () => {
       try {
         const response = await getAccommodationDetails(id);
-        const data = response.data;
-        console.log('Accommodation data:', data);
-        data.facilities = Array.isArray(data.facilities) 
-          ? data.facilities 
-          : (typeof data.facilities === 'string' ? JSON.parse(data.facilities) : []);
-        setAccommodation(data);
-        setLoading(false);
+        if (isMounted) {
+          const data = response.data;
+          data.facilities = Array.isArray(data.facilities)
+            ? data.facilities 
+            : (typeof data.facilities === 'string' ? JSON.parse(data.facilities) : []);
+          setAccommodation(data);
+          setLoading(false);
 
-        // Fetch driving distance and duration
-        if (location && location.place_name) {
-          const distanceResponse = await calculateDrivingDistance(location.place_name, data.location);
-          setDrivingInfo({
-            distance: `${distanceResponse.data.distance.toFixed(1)} km`,
-            duration: `${distanceResponse.data.duration.toFixed(0)} mins`
-          });
+          if (location && location.place_name) {
+            try {
+              const distanceResponse = await calculateDrivingDistance(location.place_name, data.location);
+              if (isMounted) {
+                setDrivingInfo({
+                  distance: `${distanceResponse.data.distance.toFixed(1)} km`,
+                  duration: `${distanceResponse.data.duration.toFixed(0)} mins`
+                });
+              }
+            } catch (distanceError) {
+              console.error('Error calculating driving distance:', distanceError);
+              if (isMounted && distanceError.response && distanceError.response.status === 401) {
+                // User is not authenticated, we'll handle this in the UI
+                setDrivingInfo(null);
+              } else {
+                addToast('Warning', 'Unable to calculate driving distance', 'warning');
+              }
+            }
+          }
         }
       } catch (error) {
         console.error('Error fetching accommodation details:', error);
-        setLoading(false);
+        if (isMounted) {
+          setError('Failed to load accommodation details');
+          setLoading(false);
+          addToast('Error', 'Failed to load accommodation details', 'error');
+        }
       }
     };
 
     fetchAccommodationDetails();
-  }, [id, location]);
 
-  if (loading) return <Text>Loading...</Text>;
-  if (!accommodation) return <Text>Accommodation not found</Text>;
+    return () => {
+      isMounted = false;
+    };
+  }, [id, location, addToast]);
 
   const handleImageClick = (index) => {
     setCurrentImageIndex(index);
@@ -56,6 +78,30 @@ const AccommodationDetail = () => {
   const handleCloseCarousel = () => setShowCarousel(false);
   const handlePrevImage = () => setCurrentImageIndex((prevIndex) => (prevIndex === 0 ? accommodation.imageUrls.length - 1 : prevIndex - 1));
   const handleNextImage = () => setCurrentImageIndex((prevIndex) => (prevIndex === accommodation.imageUrls.length - 1 ? 0 : prevIndex + 1));
+
+  if (loading) {
+    return (
+      <Container size="2">
+        <Text>Loading accommodation details...</Text>
+      </Container>
+    );
+  }
+
+  if (error) {
+    return (
+      <Container size="2">
+        <Text color="red">{error}</Text>
+      </Container>
+    );
+  }
+
+  if (!accommodation) {
+    return (
+      <Container size="2">
+        <Text>Accommodation not found</Text>
+      </Container>
+    );
+  }
 
   const ImageGallery = () => (
     <Box>
@@ -141,13 +187,23 @@ const AccommodationDetail = () => {
         </Flex>
       </Grid>
       <Separator size="4" mb="3" />
-      {drivingInfo && (
+      {drivingInfo ? (
         <Box mb="3">
           <Heading size="4" mb="2">Distance from Your Location</Heading>
           <Flex align="center">
             <Car size={16} />
             <Text size="3" ml="2">
               {drivingInfo.distance} ({drivingInfo.duration} drive)
+            </Text>
+          </Flex>
+        </Box>
+      ) : (
+        <Box mb="3">
+          <Heading size="4" mb="2">Distance from Your Location</Heading>
+          <Flex align="center" style={{ color: 'var(--gray-11)' }}>
+            <Lock size={16} />
+            <Text size="3" ml="2">
+              Log in to see driving distance
             </Text>
           </Flex>
         </Box>

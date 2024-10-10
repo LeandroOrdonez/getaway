@@ -1,11 +1,12 @@
 // frontend/src/pages/Comparison.js
-import React, { useState, useEffect, useContext } from 'react';
+import React, { useState, useEffect, useContext, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Container, Heading, Text, Card, Flex, Button, Badge, Box } from '@radix-ui/themes';
 import * as Progress from '@radix-ui/react-progress';
 import { Star, ExternalLink, Bed, Car, MapPin, ChevronLeft, ChevronRight } from 'lucide-react';
 import { getComparisonCount, getRandomPair, submitComparison, calculateDrivingDistance } from '../services/api';
 import { LocationContext } from '../contexts/LocationContext';
+import { useToast } from '../contexts/ToastContext';
 import ResultsCalculation from '../components/ResultsCalculation';
 import Carousel from '../components/Carousel';
 
@@ -19,66 +20,81 @@ const Comparison = () => {
   const [currentImageIndexes, setCurrentImageIndexes] = useState([0, 0]);
   const navigate = useNavigate();
   const { location } = useContext(LocationContext);
+  const { addToast } = useToast();
 
-  useEffect(() => {
-    fetchComparisonCount();
-    fetchRandomPair();
-  }, [location]);
-
-  const fetchComparisonCount = async () => {
+  const fetchComparisonCount = useCallback(async () => {
     try {
       const response = await getComparisonCount();
       setComparisonCount(response.data.count);
       setMaxComparisons(response.data.maxComparisons);
+      return response.data.count;
     } catch (error) {
       console.error('Error fetching comparison count:', error);
+      addToast('Error', 'Failed to fetch comparison count.', 'error');
+      return 0;
     }
-  };
+  }, [addToast]);
 
-  const fetchRandomPair = async () => {
+  const fetchRandomPair = useCallback(async () => {
     setLoading(true);
     try {
       const response = await getRandomPair();
       const accommodationsWithDistance = await Promise.all(response.data.map(async (acc) => {
         if (location && location.place_name) {
-          const distanceResponse = await calculateDrivingDistance(location.place_name, acc.location);
-          return { 
-            ...acc, 
-            drivingDistance: `${distanceResponse.data.distance.toFixed(1)} km`,
-            drivingDuration: `${distanceResponse.data.duration.toFixed(0)} mins`
-          };
+          try {
+            const distanceResponse = await calculateDrivingDistance(location.place_name, acc.location);
+            return { 
+              ...acc, 
+              drivingDistance: `${distanceResponse.data.distance.toFixed(1)} km`,
+              drivingDuration: `${distanceResponse.data.duration.toFixed(0)} mins`
+            };
+          } catch (error) {
+            console.error('Error calculating driving distance:', error);
+            return acc;
+          }
         }
         return acc;
       }));
       setAccommodations(accommodationsWithDistance);
-      setCurrentImageIndexes([0, 0]); // Reset image indexes for new accommodations
+      setCurrentImageIndexes([0, 0]);
     } catch (error) {
       console.error('Error fetching random pair:', error);
+      addToast('Error', 'Failed to fetch accommodations for comparison.', 'error');
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
-  };
+  }, [location, addToast]);
+
+  useEffect(() => {
+    const initComparison = async () => {
+      const count = await fetchComparisonCount();
+      if (count < maxComparisons) {
+        fetchRandomPair();
+      } else {
+        setIsCalculatingResults(true);
+      }
+    };
+
+    initComparison();
+  }, [fetchComparisonCount, fetchRandomPair, maxComparisons]);
 
   const handleChoice = async (winnerAccommodationId, loserAccommodationId) => {
     try {
       const response = await submitComparison(winnerAccommodationId, loserAccommodationId);
-      if (response.data.isLastComparison) {
+      const newCount = await fetchComparisonCount();
+      
+      if (newCount >= maxComparisons || response.data.isLastComparison) {
         setIsCalculatingResults(true);
+        addToast('Success', 'All comparisons completed. Calculating final results...', 'success');
         setTimeout(() => {
           navigate('/rankings');
-        }, 1500);
+        }, 2000);
       } else {
         fetchRandomPair();
-        setComparisonCount(prevCount => prevCount + 1);
       }
     } catch (error) {
-      if (error.response && error.response.status === 403) {
-        setIsCalculatingResults(true);
-        setTimeout(() => {
-          navigate('/rankings');
-        }, 1500);
-      } else {
-        console.error('Error submitting comparison:', error);
-      }
+      console.error('Error submitting comparison:', error);
+      addToast('Error', 'Failed to submit comparison. Please try again.', 'error');
     }
   };
 
@@ -119,6 +135,14 @@ const Comparison = () => {
     });
   };
 
+  if (isCalculatingResults) {
+    return <ResultsCalculation />;
+  }
+
+  if (loading) {
+    return <Text>Loading...</Text>;
+  }
+
   if (comparisonCount >= maxComparisons) {
     return (
       <Container size="2">
@@ -126,14 +150,6 @@ const Comparison = () => {
         <Button onClick={() => navigate('/rankings')}>View Rankings</Button>
       </Container>
     );
-  }
-
-  if (isCalculatingResults) {
-    return <ResultsCalculation />;
-  }
-
-  if (loading) {
-    return <Text>Loading...</Text>;
   }
 
   const truncate = (str, n) => {
@@ -169,7 +185,7 @@ const Comparison = () => {
           <Box key={accommodation.id} style={{ flex: '1', minWidth: 0, width: '100%' }}>
             <Card mb="4">
               <Flex direction="column" style={{ height: '100%' }}>
-                <Box style={{ position: 'relative', paddingTop: '56.25%' }}> {/* 16:9 aspect ratio */}
+                <Box style={{ position: 'relative', paddingTop: '56.25%' }}>
                   <Box style={{ 
                     position: 'absolute', 
                     top: 0, 
