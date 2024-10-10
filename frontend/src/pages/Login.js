@@ -1,6 +1,6 @@
 // frontend/src/pages/Login.js
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { Container, Heading, Text, TextField, Button, Flex, Card, Box } from '@radix-ui/themes';
 import { EnvelopeClosedIcon, LockClosedIcon } from '@radix-ui/react-icons';
 import { login } from '../services/api';
@@ -11,6 +11,7 @@ const Login = ({ setUser }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const navigate = useNavigate();
+  const location = useLocation();
   const { addToast } = useToast();
 
   const handleSubmit = async (e) => {
@@ -30,11 +31,11 @@ const Login = ({ setUser }) => {
         email: decodedToken.email
       });
       
-      if (decodedToken.isAdmin) {
-        navigate('/admin');
-      } else {
-        navigate('/');
-      }
+      addToast('Success', 'You have successfully logged in.', 'success');
+      
+      // Redirect to the intended page or default to home
+      const from = location.state?.from || '/';
+      navigate(from, { replace: true });
     } catch (error) {
       console.error('Error logging in:', error);
       addToast('Error', 'Login failed. Please check your credentials.', 'error');

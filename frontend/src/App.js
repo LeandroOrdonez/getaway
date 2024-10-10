@@ -19,29 +19,41 @@ import AutoLogin from './components/AutoLogin';
 
 const App = () => {
   const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const token = localStorage.getItem('token');
-    if (token) {
-      try {
-        const decodedToken = jwtDecode(token);
-        const currentTime = Date.now() / 1000;
-        if (decodedToken.exp > currentTime) {
-          setUser({
-            token,
-            id: decodedToken.id,
-            type: decodedToken.type,
-            isAdmin: decodedToken.isAdmin
-          });
-        } else {
+    const checkAuthStatus = () => {
+      const token = localStorage.getItem('token');
+      if (token) {
+        try {
+          const decodedToken = jwtDecode(token);
+          const currentTime = Date.now() / 1000;
+          if (decodedToken.exp > currentTime) {
+            setUser({
+              token,
+              id: decodedToken.id,
+              type: decodedToken.type,
+              isAdmin: decodedToken.isAdmin,
+              username: decodedToken.username,
+              email: decodedToken.email
+            });
+          } else {
+            localStorage.removeItem('token');
+          }
+        } catch (error) {
+          console.error('Error decoding token:', error);
           localStorage.removeItem('token');
         }
-      } catch (error) {
-        console.error('Error decoding token:', error);
-        localStorage.removeItem('token');
       }
-    }
+      setLoading(false);
+    };
+
+    checkAuthStatus();
   }, []);
+
+  if (loading) {
+    return <div>Loading...</div>; // Or a more sophisticated loading component
+  }
 
   return (
     <Router>
@@ -55,17 +67,17 @@ const App = () => {
               <Route path="/login/:uniqueUrl" element={<AutoLogin setUser={setUser} />} />
               <Route 
                 path="/comparison" 
-                element={user ? <Comparison /> : <Navigate to="/login" replace />} 
+                element={user ? <Comparison /> : <Navigate to="/login" state={{ from: '/comparison' }} replace />} 
               />
               <Route path="/rankings" element={<Rankings />} />
               <Route 
                 path="/admin" 
-                element={user && user.isAdmin ? <AdminInterface /> : <Navigate to="/login" replace />} 
+                element={user && user.isAdmin ? <AdminInterface /> : <Navigate to="/login" state={{ from: '/admin' }} replace />} 
               />
               <Route path="/accommodation/:id" element={<AccommodationDetail />} />
               <Route 
                 path="/profile" 
-                element={user ? <UserProfile /> : <Navigate to="/login" replace />} 
+                element={user ? <UserProfile /> : <Navigate to="/login" state={{ from: '/profile' }} replace />} 
               />
             </Routes>
             <Footer />
