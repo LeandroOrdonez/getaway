@@ -6,6 +6,7 @@ import * as Collapsible from '@radix-ui/react-collapsible';
 import * as Progress from '@radix-ui/react-progress';
 import { PlusIcon, CopyIcon, Cross2Icon, ImageIcon, ReloadIcon, ChevronDownIcon, ChevronUpIcon, StarFilledIcon } from '@radix-ui/react-icons';
 import { createAccommodation, registerUser, listUsers, listAccommodations } from '../services/api';
+import { useToast } from '../contexts/ToastContext';
 import '../styles/AdminInterface.css';
 
 const AdminInterface = () => {
@@ -22,12 +23,12 @@ const AdminInterface = () => {
   const [facility, setFacility] = useState('');
   const [newUser, setNewUser] = useState({ username: '', email: '', password: '' });
   const [users, setUsers] = useState([]);
-  const [message, setMessage] = useState({ type: '', content: '' });
   const [imageFiles, setImageFiles] = useState([]);
   const [imagePreviews, setImagePreviews] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [accommodations, setAccommodations] = useState([]);
   const [isFormOpen, setIsFormOpen] = useState(false);
+  const { addToast } = useToast();
 
   useEffect(() => {
     fetchUsers();
@@ -40,7 +41,7 @@ const AdminInterface = () => {
       setUsers(response.data);
     } catch (error) {
       console.error('Error fetching users:', error);
-      setMessage({ type: 'error', content: 'Failed to fetch users.' });
+      addToast('Error', 'Failed to fetch users.', 'error');
     }
   };
 
@@ -50,7 +51,7 @@ const AdminInterface = () => {
       setAccommodations(response.data);
     } catch (error) {
       console.error('Error fetching accommodations:', error);
-      setMessage({ type: 'error', content: 'Failed to fetch accommodations.' });
+      addToast('Error', 'Failed to fetch accommodations.', 'error');
     }
   };
 
@@ -59,11 +60,7 @@ const AdminInterface = () => {
   };
 
   const handleNewUserChange = (e) => {
-    let u = { ...newUser, [e.target.name]: e.target.value };
-    if (e.target.name === 'password' && !e.target.value) {
-      u = { ...u, password: '' };
-    }
-    setNewUser(u);
+    setNewUser({ ...newUser, [e.target.name]: e.target.value });
   };
 
   const handleAddFacility = () => {
@@ -119,7 +116,7 @@ const AdminInterface = () => {
       });
 
       await createAccommodation(formData);
-      setMessage({ type: 'success', content: 'Accommodation created successfully!' });
+      addToast('Success', 'Accommodation created successfully!', 'success');
       setAccommodation({
         name: '',
         location: '',
@@ -132,17 +129,11 @@ const AdminInterface = () => {
       });
       setImageFiles([]);
       setImagePreviews([]);
-      fetchAccommodations(); // Refresh the accommodations list
-      setIsFormOpen(false); // Close the form after successful submission
+      fetchAccommodations();
+      setIsFormOpen(false);
     } catch (error) {
-      if (error.response) {
-        console.error('Upload error:', error.response.data.error);
-      } else if (error.request) {
-        console.error('No response received:', error.request);
-      } else {
-        console.error('Error', error.message);
-      }
-      setMessage({ type: 'error', content: 'Failed to create accommodation. Please try again.' });
+      console.error('Error creating accommodation:', error);
+      addToast('Error', 'Failed to create accommodation. Please try again.', 'error');
     } finally {
       setIsLoading(false);
     }
@@ -151,21 +142,19 @@ const AdminInterface = () => {
   const handleUserRegistration = async (e) => {
     e.preventDefault();
     try {
-      const response = await registerUser(newUser);
-      setMessage({ type: 'success', content: 'User registered successfully!' });
+      await registerUser(newUser);
+      addToast('Success', 'User registered successfully!', 'success');
       setNewUser({ username: '', email: '', password: '' });
       fetchUsers();
-      
-      setMessage({ type: 'success', content: 'User registered successfully!' });
     } catch (error) {
       console.error('Error registering user:', error);
-      setMessage({ type: 'error', content: 'Failed to register user. Please try again.' });
+      addToast('Error', 'Failed to register user. Please try again.', 'error');
     }
   };
 
   const copyLoginUrl = (uniqueUrl) => {
     navigator.clipboard.writeText(`${window.location.origin}/login/${uniqueUrl}`);
-    setMessage({ type: 'success', content: 'Login URL copied to clipboard!' });
+    addToast('Success', 'Login URL copied to clipboard!', 'success');
   };
 
   const AccommodationCard = ({ accommodation }) => (
@@ -429,16 +418,8 @@ const AdminInterface = () => {
               </Collapsible.Content>
             </Collapsible.Root>
           </Flex>
-        </Tabs.Content>
+          </Tabs.Content>
       </Tabs.Root>
-
-      {message.content && (
-        <Box mt="4">
-          <Text color={message.type === 'success' ? 'green' : 'red'}>
-            {message.content}
-          </Text>
-        </Box>
-      )}
     </Container>
   );
 };

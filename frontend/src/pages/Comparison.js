@@ -230,7 +230,7 @@ const Comparison = () => {
                     <Heading aria-description={accommodation.name} size="3" mb="2">{truncate(accommodation.name, 50)}</Heading>
                     <Flex align="center" mb="2">
                       <MapPin size={16} />
-                      <Text aria-description={accommodation.location} size="2" ml="1">{truncate(accommodation.location, 60)}</Text>
+                      <Text aria-description={accommodation.location} size="2" ml="1">{truncate(accommodation.location, 40)}</Text>
                     </Flex>
                     <Flex justify="between" mb="2">
                       <Text weight="bold">€{accommodation.pricePerNight} per night</Text>
