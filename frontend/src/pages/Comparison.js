@@ -18,6 +18,7 @@ const Comparison = () => {
   const [isCalculatingResults, setIsCalculatingResults] = useState(false);
   const [showCarousel, setShowCarousel] = useState([false, false]);
   const [currentImageIndexes, setCurrentImageIndexes] = useState([0, 0]);
+  const [justCompletedAllComparisons, setJustCompletedAllComparisons] = useState(false);
   const navigate = useNavigate();
   const { location } = useContext(LocationContext);
   const { addToast } = useToast();
@@ -70,9 +71,8 @@ const Comparison = () => {
       const count = await fetchComparisonCount();
       if (count < maxComparisons) {
         fetchRandomPair();
-      } else {
-        setIsCalculatingResults(true);
       }
+      setLoading(false);
     };
 
     initComparison();
@@ -84,11 +84,12 @@ const Comparison = () => {
       const newCount = await fetchComparisonCount();
       
       if (newCount >= maxComparisons || response.data.isLastComparison) {
+        setJustCompletedAllComparisons(true);
         setIsCalculatingResults(true);
         addToast('Success', 'All comparisons completed. Calculating final results...', 'success');
         setTimeout(() => {
           navigate('/rankings');
-        }, 2000);
+        }, 1500);
       } else {
         fetchRandomPair();
       }
@@ -135,12 +136,12 @@ const Comparison = () => {
     });
   };
 
-  if (isCalculatingResults) {
-    return <ResultsCalculation />;
-  }
-
   if (loading) {
     return <Text>Loading...</Text>;
+  }
+
+  if (isCalculatingResults && justCompletedAllComparisons) {
+    return <ResultsCalculation />;
   }
 
   if (comparisonCount >= maxComparisons) {
