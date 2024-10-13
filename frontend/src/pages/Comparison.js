@@ -203,6 +203,7 @@ const Comparison = () => {
                         height: '100%',
                         objectFit: 'cover',
                         cursor: 'pointer',
+                        borderRadius: '6px'
                       }}
                       onClick={() => handleImageClick(index, currentImageIndexes[index])}
                     />
