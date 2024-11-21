@@ -8,7 +8,9 @@ exports.createAccommodation = async (req, res) => {
     const imagePaths = await processUploadedImages(req.files);
     accommodationData.imageUrls = imagePaths;
 
+    console.log(JSON.stringify(accommodationData));
     const accommodation = await Accommodation.create(accommodationData);
+    console.log(JSON.stringify(accommodation));
     res.status(201).json(accommodation);
   } catch (error) {
     res.status(400).json({ error: error.message });

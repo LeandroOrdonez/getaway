@@ -3,12 +3,12 @@ const express = require('express');
 const router = express.Router();
 const accommodationController = require('../controllers/accommodationController');
 const { authenticate, authorizeAdmin } = require('../middleware/auth');
-const { upload, handleUploadErrors } = require('../middleware/upload');
+const { upload, handleUploadErrors, MAX_FILES } = require('../middleware/upload');
 
 router.post('/', 
   authenticate, 
   authorizeAdmin, 
-  upload.array('images', 20), 
+  upload.array('images', MAX_FILES), 
   handleUploadErrors,
   accommodationController.createAccommodation
 );
@@ -16,7 +16,7 @@ router.post('/',
 router.put('/:id', 
   authenticate, 
   authorizeAdmin, 
-  upload.array('images', 20), 
+  upload.array('images', MAX_FILES), 
   handleUploadErrors,
   accommodationController.updateAccommodation
 );

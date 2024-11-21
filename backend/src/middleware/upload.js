@@ -3,7 +3,7 @@ const multer = require('multer');
 const path = require('path');
 
 const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
-const MAX_FILES = 20;
+const MAX_FILES = 100;
 
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
@@ -41,9 +41,10 @@ const handleUploadErrors = (err, req, res, next) => {
     if (err.code === 'LIMIT_FILE_COUNT') {
       return res.status(400).json({ error: `Too many files. Maximum is ${MAX_FILES} files.` });
     }
+    console.log(`Unknown upload error (${err.code}) ${JSON.stringify(err)}`);
     return res.status(400).json({ error: err.message });
   }
   next(err);
 };
 
-module.exports = { upload, handleUploadErrors };
+module.exports = { upload, handleUploadErrors, MAX_FILES };
