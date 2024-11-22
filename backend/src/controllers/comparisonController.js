@@ -23,10 +23,37 @@ function calculateEloRating(winnerRating, loserRating) {
 
 exports.getRandomPair = async (req, res) => {
   try {
-    const accommodations = await Accommodation.findAll({
-      order: sequelize.random(),
-      limit: 2,
+    const userId = req.user.id;
+
+    // Retrieve all comparisons made by the current user
+    const comparisons = await Comparison.findAll({
+      where: { userId },
+      attributes: ['winnerAccommodationId', 'loserAccommodationId']
     });
+
+    // Create a set of pairs that have been compared by the user
+    const comparedPairs = new Set();
+    comparisons.forEach(comparison => {
+      const pair1 = `${comparison.winnerAccommodationId},${comparison.loserAccommodationId}`;
+      const pair2 = `${comparison.loserAccommodationId},${comparison.winnerAccommodationId}`;
+      comparedPairs.add(pair1);
+      comparedPairs.add(pair2);
+    });
+
+    let accommodations;
+    let pair;
+    do {
+      // Retrieve a random pair of accommodations
+      accommodations = await Accommodation.findAll({
+        order: sequelize.random(),
+        limit: 2,
+      });
+
+      if (accommodations.length === 2) {
+        pair = `${accommodations[0].id},${accommodations[1].id}`;
+      }
+    } while (accommodations.length === 2 && comparedPairs.has(pair));
+
     res.status(200).json(accommodations);
   } catch (error) {
     res.status(400).json({ error: error.message });
@@ -37,7 +64,7 @@ exports.submitComparison = async (req, res) => {
   const { winnerAccommodationId, loserAccommodationId } = req.body;
   const userId = req.user.id;
   const userType = req.userType;
-  
+
   const transaction = await sequelize.transaction();
 
   try {
@@ -57,7 +84,7 @@ exports.submitComparison = async (req, res) => {
 
     console.log(`Winner: ${JSON.stringify(winner)}`);
     console.log(`Loser: ${JSON.stringify(loser)}`);
-    
+
     const [newWinnerRating, newLoserRating] = calculateEloRating(winner.eloScore, loser.eloScore);
 
     console.log(`New winner rating: ${newWinnerRating}`);
