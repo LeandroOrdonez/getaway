@@ -48,7 +48,7 @@ async function createAdminUser() {
     const adminUserId = uuidv4();
     const adminUsername = 'admin';
     const adminEmail = 'leandro.ordonez.ante@gmail.com';
-    const adminPassword = '4dm1n.p455w0rd';
+    const adminPassword = '*************';
 
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(adminPassword, salt);
